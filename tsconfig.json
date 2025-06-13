@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
-    "strict": true
+    "strict": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["vite/client", "node"]
   },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "exclude": ["node_modules", "dist", "build"]
 }
