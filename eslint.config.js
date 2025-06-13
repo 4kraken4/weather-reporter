@@ -11,9 +11,9 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: [ 'dist', '**/node_modules/**' ] },
+  { ignores: ['dist', '**/node_modules/**'] },
   {
-    files: [ '**/*.{ts,tsx}' ],
+    files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommended,
@@ -44,11 +44,11 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
-      '@typescript-eslint/no-unused-vars': [ 'error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' } ],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-non-null-assertion': 'warn',
-      '@typescript-eslint/consistent-type-imports': [ 'error', { prefer: 'type-imports', fixStyle: 'inline-type-imports' } ],
-      '@typescript-eslint/consistent-type-definitions': [ 'error', 'type' ],
-      '@typescript-eslint/array-type': [ 'error', { default: 'array' } ],
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      '@typescript-eslint/array-type': ['error', { default: 'array' }],
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/no-floating-promises': 'warn',
@@ -66,16 +66,16 @@ export default tseslint.config(
       'react/jsx-no-useless-fragment': 'warn',
       'react/self-closing-comp': 'error',
       'react/jsx-pascal-case': 'error',
-      'react/jsx-key': [ 'error', { 'checkFragmentShorthand': true } ],
+      'react/jsx-key': ['error', { 'checkFragmentShorthand': true }],
       'react/no-array-index-key': 'warn',
       'react/no-direct-mutation-state': 'error',
       'react/no-danger': 'warn',
-      'react/jsx-curly-brace-presence': [ 'error', { 'props': 'never', 'children': 'never' } ],
+      'react/jsx-curly-brace-presence': ['error', { 'props': 'never', 'children': 'never' }],
 
       // React hooks
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
-      'react-refresh/only-export-components': [ 'warn', { 'allowConstantExport': true } ],
+      'react-refresh/only-export-components': ['warn', { 'allowConstantExport': true }],
 
       // Accessibility
       'jsx-a11y/alt-text': 'error',
@@ -88,14 +88,14 @@ export default tseslint.config(
       'require-atomic-updates': 'error',
       'default-case-last': 'error',
       'dot-notation': 'error',
-      'eqeqeq': [ 'error', 'always', { null: 'ignore' } ],
-      'spaced-comment': [ 'error', 'always', { markers: [ '/' ] } ],
-      'prefer-const': [ 'error', { destructuring: 'all' } ],
+      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      'spaced-comment': ['error', 'always', { markers: ['/'] }],
+      'prefer-const': ['error', { destructuring: 'all' }],
       'prefer-template': 'error',
-      'no-console': [ 'warn', { 'allow': [ 'warn', 'error' ] } ],
+      'no-console': ['warn', { 'allow': ['warn', 'error'] }],
       'no-alert': 'error',
       'no-var': 'error',
-      'no-constant-condition': [ 'error', { 'checkLoops': false } ],
+      'no-constant-condition': ['error', { 'checkLoops': false }],
       'no-debugger': 'warn',
       'no-template-curly-in-string': 'warn',
       'no-unreachable': 'error',
@@ -120,16 +120,16 @@ export default tseslint.config(
       'no-constructor-return': 'error',
       'no-self-compare': 'error',
       'no-use-before-define': 'off',
-      '@typescript-eslint/no-use-before-define': [ 'error' ],
-      'curly': [ 'error', 'multi-line', 'consistent' ],
+      '@typescript-eslint/no-use-before-define': ['error'],
+      'curly': ['error', 'multi-line', 'consistent'],
 
       // Imports
       'eslint-import/no-default-export': 'off', // Allow default exports
-      'eslint-import/order': [ 'error', {
-        'groups': [ 'builtin', 'external', 'internal', 'parent', 'sibling', 'index' ],
+      'eslint-import/order': ['error', {
+        'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
         'newlines-between': 'always',
         'alphabetize': { 'order': 'asc', 'caseInsensitive': true }
-      } ],
+      }],
     },
     settings: {
       react: {
@@ -139,7 +139,7 @@ export default tseslint.config(
   },
   {
     // JavaScript configuration for config files
-    files: [ 'eslint.config.js' ],
+    files: ['eslint.config.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -150,13 +150,13 @@ export default tseslint.config(
     },
     rules: {
       // Only keep essential rules for config files
-      'no-console': [ 'warn', { allow: [ 'warn', 'error' ] } ],
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-var': 'error',
       'prefer-const': 'error',
-      'eqeqeq': [ 'error', 'always', { null: 'ignore' } ],
-      'curly': [ 'error', 'multi-line', 'consistent' ],
-      'spaced-comment': [ 'error', 'always', { markers: [ '/' ] } ],
-      'eol-last': [ 'error', 'always' ],
+      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      'curly': ['error', 'multi-line', 'consistent'],
+      'spaced-comment': ['error', 'always', { markers: ['/'] }],
+      'eol-last': ['error', 'always'],
 
       // Disable import-related rules for this file
       'eslint-import/no-commonjs': 'off',
