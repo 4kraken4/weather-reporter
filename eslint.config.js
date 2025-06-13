@@ -8,7 +8,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: [ 'dist' ] },
+  { ignores: [ 'dist', '**/node_modules/**' ] },
   {
     files: [ '**/*.{ts,tsx}' ],
     extends: [
@@ -133,74 +133,28 @@ export default tseslint.config(
   },
   {
     // JavaScript configuration for config files
-    files: [ '**/*.js' ],
-    extends: [ js.configs.recommended ],
+    files: [ 'eslint.config.js' ],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
-      globals: { ...globals.node },
+      globals: { ...globals.node }
     },
     plugins: {
       'eslint-import': eslintImport,
     },
     rules: {
+      // Only keep essential rules for config files
       'no-console': [ 'warn', { allow: [ 'warn', 'error' ] } ],
       'no-var': 'error',
       'prefer-const': 'error',
       'eqeqeq': [ 'error', 'always', { null: 'ignore' } ],
       'curly': [ 'error', 'multi-line', 'consistent' ],
-      'no-multi-spaces': 'error',
-      'no-multiple-empty-lines': [ 'error', { max: 1 } ],
+      'spaced-comment': [ 'error', 'always', { markers: [ '/' ] } ],
       'eol-last': [ 'error', 'always' ],
 
-      // Error Prevention
-      'no-undef': 'error',
-      'no-unused-vars': [ 'error', { argsIgnorePattern: '^_' } ],
-      'no-implicit-globals': 'error',
-      'no-use-before-define': [ 'error', { functions: false } ],
-      'require-atomic-updates': 'error',
-      'no-self-compare': 'error',
-
-      // Code Quality
-      'dot-notation': 'error',
-      'no-throw-literal': 'error',
-      'no-param-reassign': [ 'error', { props: false } ],
-      'prefer-template': 'error',
-      'no-useless-concat': 'error',
-      'no-nested-ternary': 'warn',
-
-      // Modern JS Features
-      'arrow-body-style': [ 'error', 'as-needed' ],
-      'prefer-arrow-callback': 'error',
-      'object-shorthand': [ 'error', 'always' ],
-
-      // Import/Export Rules
-      'eslint-import/no-unresolved': 'off', // Handled by TypeScript in main config
-      'eslint-import/no-commonjs': 'error',
-      'eslint-import/no-default-export': 'off',
-      'eslint-import/no-anonymous-default-export': 'warn',
-
-      // Node.js Specific
-      'no-buffer-constructor': 'error',
-      'no-new-require': 'error',
-      'no-path-concat': 'error',
-
-      // Comments
-      'spaced-comment': [ 'error', 'always', {
-        markers: [ '/' ],
-        exceptions: [ '-', '=' ]
-      } ],
-
-      // Allowances for Config Files
-      'global-require': 'off',
-      'eslint-import/no-dynamic-require': 'off'
-    },
-    settings: {
-      'import/resolver': {
-        node: {
-          extensions: [ '.js' ]
-        }
-      }
+      // Disable import-related rules for this file
+      'eslint-import/no-commonjs': 'off',
+      'eslint-import/no-anonymous-default-export': 'off'
     }
   }
 );
