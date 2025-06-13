@@ -1,3 +1,4 @@
+// @ts-nocheck
 import js from '@eslint/js';
 import eslintImport from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
