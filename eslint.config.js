@@ -139,6 +139,9 @@ export default tseslint.config(
       sourceType: 'module',
       globals: { ...globals.node }
     },
+    plugins: {
+      'eslint-import': eslintImport,
+    },
     rules: {
       // Only keep essential rules for config files
       'no-console': [ 'warn', { allow: [ 'warn', 'error' ] } ],
