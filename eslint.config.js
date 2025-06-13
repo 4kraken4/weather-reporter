@@ -1,3 +1,4 @@
+// @ts-nocheck
 import js from '@eslint/js';
 import eslintImport from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
@@ -138,6 +139,9 @@ export default tseslint.config(
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: { ...globals.node }
+    },
+    plugins: {
+      'eslint-import': eslintImport,
     },
     rules: {
       // Only keep essential rules for config files
