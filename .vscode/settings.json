@@ -9,6 +9,7 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "always"
   },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.useFlatConfig": true,
   "eslint.validate": [
     "javascript",
@@ -16,6 +17,18 @@
     "typescript",
     "typescriptreact"
   ],
+  "prettier.enable": true,
+  "prettier.semi": true,
+  "prettier.tabWidth": 2,
+  "prettier.printWidth": 86,
+  "prettier.useTabs": false,
+  "prettier.endOfLine": "lf",
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "es5",
+  "prettier.arrowParens": "avoid",
+  "prettier.bracketSpacing": true,
+  "prettier.jsxSingleQuote": true,
+  "prettier.quoteProps": "as-needed",
   "javascript.suggest.paths": false,
   "javascript.updateImportsOnFileMove.enabled": "always",
   "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
@@ -35,6 +48,7 @@
     "**/.settings": true,
     "**/.factorypath": true
   },
+  "files.eol": "\n",
   "files.insertFinalNewline": true,
   "git.autofetch": true,
   "git.enableSmartCommit": true,

@@ -1,7 +1,9 @@
 // @ts-nocheck
 import js from '@eslint/js';
+import prettierConfig from 'eslint-config-prettier';
 import eslintImport from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
+import prettier from 'eslint-plugin-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
@@ -16,6 +18,7 @@ export default tseslint.config(
       js.configs.recommended,
       ...tseslint.configs.recommended,
       ...tseslint.configs.recommendedTypeChecked,
+      prettierConfig
     ],
     languageOptions: {
       ecmaVersion: 2020,
@@ -30,9 +33,11 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       'jsx-a11y': jsxA11y,
-      'eslint-import': eslintImport
+      'eslint-import': eslintImport,
+      prettier
     },
     rules: {
+      'prettier/prettier': 'error',
       ...reactHooks.configs.recommended.rules,
       // TypeScript specific rules
       '@typescript-eslint/explicit-function-return-type': 'off',
