@@ -4,7 +4,7 @@
   "editor.formatOnSave": true,
   "editor.occurrencesHighlight": "multiFile",
   "editor.minimap.size": "fill",
-  "editor.minimap.enabled": false,
+  "editor.minimap.enabled": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "always"
@@ -31,17 +31,16 @@
   "prettier.quoteProps": "as-needed",
   "javascript.suggest.paths": false,
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
-  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": true,
-  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
+  "javascript.format.insertSpaceBeforeFunctionParenthesis": false,
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
   "javascript.format.semicolons": "insert",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.format.semicolons": "insert",
-  "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "typescript.format.insertSpaceBeforeFunctionParenthesis": false,
   "typescript.format.insertSpaceAfterTypeAssertion": true,
-  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": true,
-  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
-  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
   "files.exclude": {
     "**/.classpath": true,
     "**/.project": true,
@@ -49,28 +48,5 @@
     "**/.factorypath": true
   },
   "files.eol": "\n",
-  "files.insertFinalNewline": true,
-  "git.autofetch": true,
-  "git.enableSmartCommit": true,
-  "github.copilot.chat.agent.thinkingTool": true,
-  "github.copilot.nextEditSuggestions.enabled": true,
-  "github.copilot.advanced": {},
-  "github.copilot.enable": {
-    "enabled": true,
-    "markdown": true
-  },
-  "gitlens.defaultDateLocale": null,
-  "gitlens.defaultDateFormat": null,
-  "gitlens.ai.experimental.provider": "openai",
-  "gitlens.ai.experimental.openai.model": "gpt-4-turbo-preview",
-  "inlineChat.mode": "live",
-  "workbench.tree.enableStickyScroll": true,
-  "terminal.integrated.stickyScroll.enabled": true,
-  "terminal.integrated.tabs.defaultColor": "terminal.ansiGreen",
-  "terminal.integrated.cursorStyle": "line",
-  "terminal.integrated.cursorStyleInactive": "block",
-  "terminal.integrated.cursorBlinking": true,
-  "terminal.integrated.enableVisualBell": true,
-  "terminal.integrated.smoothScrolling": true,
-  "terminal.integrated.tabs.defaultIcon": "code"
+  "files.insertFinalNewline": true
 }
