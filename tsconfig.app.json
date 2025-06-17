@@ -11,12 +11,12 @@
     /* Path Aliases */
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["*"],
       "@core/*": ["./core/*"],
       "@components/*": ["./components/*"],
       "@features/*": ["./features/*"],
       "@assets/*": ["./assets/*"],
-      "@styles/*": ["./styles"]
+      "@styles/*": ["./styles/*"]
     },
 
     /* Bundler mode */
