@@ -3,7 +3,11 @@ import { apiService } from '@core/services/apiService';
 import type { WeatherResponseType } from '@core/types/common.types';
 
 export const WeatherService = {
-  async getByCity(city: string, countryCode: string): Promise<WeatherResponseType> {
+  async getByCity(
+    city: string,
+    countryCode: string,
+    options?: { signal?: AbortSignal }
+  ): Promise<WeatherResponseType> {
     try {
       return await apiService.get<WeatherResponseType>('/weather', {
         params: {
@@ -13,6 +17,7 @@ export const WeatherService = {
           lang: (import.meta.env.VITE_WEATHER_API_LANG as string) || 'en',
           mode: (import.meta.env.VITE_WEATHER_API_MODE as string) || 'json',
         },
+        signal: options?.signal,
       });
     } catch (error: unknown) {
       if (isApiError(error)) {

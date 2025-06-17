@@ -7,20 +7,37 @@ export const WeatherView = ({
   city: defaultCity = '',
   countryCode: defaultCountry = '',
 }) => {
+  const MAX_RETRIES = 3;
+  const [retryCount, setRetryCount] = useState(0);
   const { city = defaultCity, countryCode = defaultCountry } = useParams();
   const { data, loading, error }: UseWeatherResultType = useWeather(
     city,
-    countryCode
+    countryCode,
+    retryCount
   );
-  const [_retryCount, setRetryCount] = useState(0);
+
+  const handleRetry = () => {
+    if (retryCount < MAX_RETRIES) {
+      setRetryCount(prev => prev + 1);
+    }
+  };
 
   if (loading) return <div className='loading'>Loading weather data...</div>;
   if (error) {
     return (
       <div className='error'>
         <div className='error'>Error: {error.message}</div>
-        <button type='button' onClick={() => setRetryCount(c => c + 1)}>
-          Retry
+        <button
+          type='button'
+          onClick={handleRetry}
+          className='retry-button'
+          disabled={loading || retryCount >= MAX_RETRIES}
+        >
+          {loading ? (
+            <div className='spinner'>Loading...</div>
+          ) : (
+            `Retry (${MAX_RETRIES - retryCount} left)`
+          )}
         </button>
       </div>
     );

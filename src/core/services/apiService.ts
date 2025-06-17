@@ -22,6 +22,10 @@ class ApiService {
     this.setupInterceptors();
   }
 
+  private isCancel(error: unknown): boolean {
+    return axios.isCancel(error);
+  }
+
   private setupInterceptors() {
     this.instance.interceptors.request.use(
       config => {
@@ -41,6 +45,10 @@ class ApiService {
     this.instance.interceptors.response.use(
       response => response,
       (error: AxiosError) => {
+        if (this.isCancel(error)) {
+          console.warn('Request cancelled:', error.message);
+          return Promise.reject(new Error('Request cancelled'));
+        }
         if (error.response) {
           console.error('API Error:', {
             status: error.response.status,

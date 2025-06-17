@@ -3,7 +3,11 @@ import type { UseWeatherResultType } from '@core/types/common.types';
 import { WeatherService } from '@features/weather/services/weatherService';
 import { useEffect, useState } from 'react';
 
-export function useWeather(city: string, countryCode: string): UseWeatherResultType {
+export function useWeather(
+  city: string,
+  countryCode: string,
+  retryCount: number = 0
+): UseWeatherResultType {
   const [state, setState] = useState<UseWeatherResultType>({
     data: null,
     loading: true,
@@ -12,10 +16,15 @@ export function useWeather(city: string, countryCode: string): UseWeatherResultT
 
   useEffect(() => {
     let isMounted = true; // To prevent state updates on unmounted component
+    const abortController = new AbortController();
 
     const fetchData = async () => {
       try {
-        const data = await WeatherService.getByCity(city, countryCode);
+        setState(prev => ({ ...prev, loading: true, error: null }));
+
+        const data = await WeatherService.getByCity(city, countryCode, {
+          signal: abortController.signal,
+        });
         if (isMounted) {
           setState({
             data: data,
@@ -41,8 +50,9 @@ export function useWeather(city: string, countryCode: string): UseWeatherResultT
 
     return () => {
       isMounted = false;
+      abortController.abort();
     };
-  }, [city, countryCode]);
+  }, [city, countryCode, retryCount]);
 
   return state;
 }
