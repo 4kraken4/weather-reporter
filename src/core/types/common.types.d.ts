@@ -4,7 +4,7 @@ import type { RouteObject } from 'react-router-dom';
 export type WeatherData = {
   temp: number;
   humidity: number;
-  timestamp: string;
+  pressure: number;
 };
 
 export type WeatherResponseType = {
