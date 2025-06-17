@@ -26,7 +26,7 @@ export const WeatherView = ({
   if (error) {
     return (
       <div className='error'>
-        <div className='error'>Error: {error.message}</div>
+        <div className='error-message'>Error: {error.message}</div>
         <button
           type='button'
           onClick={handleRetry}
