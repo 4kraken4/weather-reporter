@@ -4,7 +4,7 @@
   "editor.formatOnSave": true,
   "editor.occurrencesHighlight": "multiFile",
   "editor.minimap.size": "fill",
-  "editor.minimap.enabled": true,
+  "editor.minimap.enabled": false,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "always"

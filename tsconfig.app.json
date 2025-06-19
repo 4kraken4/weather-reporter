@@ -13,7 +13,6 @@
     "paths": {
       "@/*": ["*"],
       "@core/*": ["./core/*"],
-      "@components/*": ["./components/*"],
       "@features/*": ["./features/*"],
       "@assets/*": ["./assets/*"],
       "@styles/*": ["./styles/*"]
@@ -36,5 +35,5 @@
     "noUncheckedSideEffectImports": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.d.ts"]
+  "include": ["src"]
 }
