@@ -24,3 +24,31 @@ export type AppRoute = RouteObject & {
   icon?: React.ReactNode;
   hiddenInMenu?: boolean;
 };
+
+export type Theme = {
+  label: string;
+  icon: string;
+  theme: string;
+};
+
+export type ThemeContextType = {
+  theme: Theme;
+  toggleTheme: () => void;
+  isDarkMode: boolean;
+} | null;
+
+export type Themes = Record<string, Theme>;
+
+export type SearchResultProps = {
+  headIcon?: React.ReactNode;
+  title?: string;
+  description?: string;
+  location?: string;
+  tailIcon?: React.ReactNode;
+};
+
+export type SearchModalProps = {
+  isOpen: boolean;
+  setOpen: (open: boolean) => void;
+  onClose: () => void;
+};
