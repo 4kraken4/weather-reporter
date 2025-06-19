@@ -1,0 +1,20 @@
+{
+  "extends": ["development"],
+  "hints": {
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "user-select",
+          "backdrop-filter",
+          "scrollbar-width",
+          "scrollbar-width: none",
+          "overscroll-behavior",
+          "overscroll-behavior: contain auto",
+          "text-size-adjust: 100%"
+        ]
+      }
+    ],
+    "no-inline-styles": "off"
+  }
+}
