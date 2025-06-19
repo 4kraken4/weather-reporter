@@ -1,0 +1,25 @@
+.layout-wrapper,
+body {
+  background-color: var(--surface-ground);
+}
+
+.landing,
+.layout-wrapper {
+  background-image: var(--glow-image);
+  background-blend-mode: var(--glow-blend);
+  background-position: top;
+  background-repeat: no-repeat;
+  background-size: auto 20rem;
+}
+
+.layout-content,
+.layout-footer,
+.layout-topbar-inner {
+  max-width: 1728px;
+  margin: 0 auto;
+}
+
+.layout-content {
+  padding: 6rem 4rem 0;
+  display: flex;
+}

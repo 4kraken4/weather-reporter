@@ -1,5 +1,6 @@
 import { ErrorBoundary } from '@core/components/error-page/ErrorPage';
-import { WeatherPage } from '@features/weather/pages/WeatherPage';
+
+import { WeatherPage } from '@/pages/WeatherPage';
 
 export const weatherRoutes = [
   {
