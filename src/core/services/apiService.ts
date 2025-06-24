@@ -46,7 +46,6 @@ class ApiService {
       response => response,
       (error: AxiosError) => {
         if (this.isCancel(error)) {
-          console.warn('Request cancelled:', error.message);
           return Promise.reject(new Error('Request cancelled'));
         }
         if (error.response) {

@@ -15,16 +15,22 @@
   },
   "dependencies": {
     "axios": "^1.10.0",
+    "chroma-js": "^3.1.2",
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.2"
+    "react-icons": "^5.5.0",
+    "react-leaflet": "^5.0.0",
+    "react-router-dom": "^7.6.2",
+    "react-tilty": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@types/chroma-js": "^3.1.1",
     "@types/eslint-plugin-jsx-a11y": "^6.10.0",
+    "@types/leaflet": "^1.9.18",
     "@types/node": "^24.0.3",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",

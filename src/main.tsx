@@ -3,6 +3,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import App from './App';
+import { LayoutProvider } from './core/contexts/LayoutProvider';
 import { ThemeProvider } from './core/contexts/ThemeProvider';
 import './index.scss';
 
@@ -13,7 +14,9 @@ if (rootElement) {
     <StrictMode>
       <PrimeReactProvider value={value}>
         <ThemeProvider>
-          <App />
+          <LayoutProvider>
+            <App />
+          </LayoutProvider>
         </ThemeProvider>
       </PrimeReactProvider>
     </StrictMode>
