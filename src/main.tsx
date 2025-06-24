@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 
 import App from './App';
 import { LayoutProvider } from './core/contexts/LayoutProvider';
+import { MessageProvider } from './core/contexts/MessageProvider';
 import { ThemeProvider } from './core/contexts/ThemeProvider';
 import './index.scss';
 
@@ -14,9 +15,11 @@ if (rootElement) {
     <StrictMode>
       <PrimeReactProvider value={value}>
         <ThemeProvider>
-          <LayoutProvider>
-            <App />
-          </LayoutProvider>
+          <MessageProvider>
+            <LayoutProvider>
+              <App />
+            </LayoutProvider>
+          </MessageProvider>
         </ThemeProvider>
       </PrimeReactProvider>
     </StrictMode>
