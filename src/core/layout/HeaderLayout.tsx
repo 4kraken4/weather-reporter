@@ -1,8 +1,10 @@
 import { useTheme } from '@core/hooks/useTheme';
 import { Button } from 'primereact/button';
 import type { TooltipOptions } from 'primereact/tooltip/tooltipoptions';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { useLayout } from '../hooks/useLayout';
 
 import SearchModal from '@/core/components/search/SearchModal';
 
@@ -23,7 +25,7 @@ export type HeaderMenuItemType = {
 };
 
 const Header = () => {
-  const [isSearchModalOpen, setSearchModalOpen] = useState(false);
+  const { uiState, setSearchModalOpen } = useLayout();
   const { toggleTheme, isDarkMode } = useTheme();
   const navigate = useNavigate();
 
@@ -132,7 +134,7 @@ const Header = () => {
     },
   ];
 
-  return (
+  return uiState.isHeaderVisible ? (
     <header>
       <div className='layout-topbar z-5'>
         <div className='layout-topbar-inner flex px-8'>
@@ -143,7 +145,7 @@ const Header = () => {
                 className='text-color no-underline text-lg font-bold uppercase flex align-items-center'
               >
                 <div className='h-2rem w-2rem border-round-sm mr-2'>
-                  <img src='/vite.svg' alt='logo' className='h-full' />
+                  <img src='/logo.svg' alt='logo' className='h-full' />
                 </div>
                 T<span className='text-primary text-2xl'>W</span>R
               </a>
@@ -158,15 +160,15 @@ const Header = () => {
           </nav>
         </div>
       </div>
-      {isSearchModalOpen && (
+      {uiState.isSearchModalOpen && (
         <SearchModal
           onClose={handleSearchCloseModal}
-          isOpen={isSearchModalOpen}
+          isOpen={uiState.isSearchModalOpen}
           setOpen={setSearchModalOpen}
         />
       )}
     </header>
-  );
+  ) : null;
 };
 
 export default Header;
