@@ -1,0 +1,23 @@
+.wind-direction-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .wind-arrow {
+    will-change: transform, color;
+    transform-origin: center;
+  }
+
+  .text-calm {
+    color: #4ade80;
+  }
+  .text-breeze {
+    color: #facc15;
+  }
+  .text-gale {
+    color: #fb923c;
+  }
+  .text-storm {
+    color: #ef4444;
+  }
+}

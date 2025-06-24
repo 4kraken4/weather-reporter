@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export function useWeather(
   city: string,
-  countryCode: string,
+  countryCode: string = 'LK',
   retryCount: number = 0
 ): UseWeatherResultType {
   const [state, setState] = useState<UseWeatherResultType>({

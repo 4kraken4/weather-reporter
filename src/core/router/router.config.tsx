@@ -2,7 +2,7 @@ import { AppLayout } from '@core/layout/AppLayout';
 import type { AppRoute } from '@core/types/common.types';
 import { weatherRoutes } from '@features/weather/routes/weather.routes';
 
-import { TestPage } from '@/pages/TestPage';
+import { HomePage } from '@/pages/HomePage';
 
 export const routes: AppRoute[] = [
   {
@@ -13,7 +13,7 @@ export const routes: AppRoute[] = [
     children: [
       {
         index: true,
-        element: <TestPage />,
+        element: <HomePage />,
       },
       ...weatherRoutes,
     ],

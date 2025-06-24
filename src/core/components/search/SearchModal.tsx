@@ -309,7 +309,7 @@ const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
               className='flex justify-content-end align-items-center w-3'
             >
               <img
-                src='/vite.svg'
+                src='/logo.svg'
                 alt='PrimeReact'
                 className='md:w-full h-full w-2rem'
               />
