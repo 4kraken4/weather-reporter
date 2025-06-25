@@ -30,6 +30,9 @@ export const WeatherPage = () => {
     },
   ]);
 
+  const isRegionNotFoundError = (err: typeof error) =>
+    err?.error && err.message?.includes("couldn't find the region");
+
   useEffect(() => {
     if (data === null) {
       void fetchWeatherData('colombo');
@@ -59,7 +62,7 @@ export const WeatherPage = () => {
 
   useEffect(() => {
     if (error) {
-      if (error.error && !error.message?.includes("couldn't find the region")) {
+      if (error.error && !isRegionNotFoundError(error)) {
         showMessage({
           severity: 'error',
           summary: 'Error',
@@ -68,9 +71,9 @@ export const WeatherPage = () => {
         });
       }
     }
-  }, [error, showMessage]);
+  }, [error, isRegionNotFoundError, showMessage]);
 
-  if (error?.error && error.message?.includes("couldn't find the region")) {
+  if (isRegionNotFoundError(error) && error) {
     return <ErrorHandler error={error} onRetry={retry} isLoading={loading} />;
   }
 
