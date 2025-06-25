@@ -8,19 +8,19 @@ export const WeatherInfoTab: React.FC<WeatherResponseType> = (
       <p>
         Weather:{' '}
         <span className='font-bold font-italic'>
-          {data ? data.weather[0].description : 'No data available'}
+          {data ? data.conditions[0]?.description : 'No data available'}
         </span>
       </p>
       <p>
         Pressure:{' '}
         <span className='font-bold font-italic'>
-          {data ? `${data.main.pressure} hPa` : 'No data available'}
+          {data ? `${data.metrics.pressure} hPa` : 'No data available'}
         </span>
       </p>
       <p>
         Feels Like:{' '}
         <span className='font-bold font-italic'>
-          {data ? `${data.main.feels_like}°C` : 'No data available'}
+          {data ? `${data.metrics.feels_like}°C` : 'No data available'}
         </span>
       </p>
       <p>
@@ -58,7 +58,9 @@ export const WeatherInfoTab: React.FC<WeatherResponseType> = (
       <p>
         Last Updated:{' '}
         <span className='font-bold font-italic'>
-          {data ? new Date(data.dt * 1000).toLocaleString() : 'No data available'}
+          {data
+            ? new Date(data.timestamp * 1000).toLocaleString()
+            : 'No data available'}
         </span>
       </p>
     </div>
