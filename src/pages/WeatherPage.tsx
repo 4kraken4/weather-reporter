@@ -1,7 +1,7 @@
 import LkMap from '@features/weather/components/map-lk/LkMap';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Skeleton } from 'primereact/skeleton';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import ErrorHandler from '@/core/components/error/errorHandler';
 import { useMessage } from '@/core/hooks/useMessage';
@@ -30,8 +30,11 @@ export const WeatherPage = () => {
     },
   ]);
 
-  const isRegionNotFoundError = (err: typeof error) =>
-    err?.error && err.message?.includes("couldn't find the region");
+  const isRegionNotFoundError = useCallback(
+    (err: typeof error) =>
+      err?.error && err.message?.includes("couldn't find the region"),
+    []
+  );
 
   useEffect(() => {
     if (data === null) {
