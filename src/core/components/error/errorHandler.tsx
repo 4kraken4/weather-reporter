@@ -1,5 +1,5 @@
 import { Button } from 'primereact/button';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import Tilty from 'react-tilty';
 
 import { useMessage } from '@/core/hooks/useMessage';
@@ -28,47 +28,7 @@ type ErrorHandlerProps = {
 };
 
 const ErrorHandler = ({ error, onRetry, isLoading }: ErrorHandlerProps) => {
-  const parallaxRef = useRef<HTMLDivElement>(null);
-  const heroParallaxRef = useRef<HTMLDivElement>(null);
-  const animationFrameId = useRef<number | null>(null);
-  const throttleTimeout = 16;
-  const lastCall = useRef(0);
   const { showMessage } = useMessage();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const now = Date.now();
-      if (now - lastCall.current < throttleTimeout) return;
-      lastCall.current = now;
-      animationFrameId.current ??= requestAnimationFrame(() => {
-        const scrollY = window.scrollY || window.pageYOffset;
-
-        // Map container parallax (faster movement)
-        if (parallaxRef.current) {
-          parallaxRef.current.style.transform = `translate3d(0, ${
-            scrollY * 0.15
-          }px, 0)`;
-        }
-
-        // Hero parallax (slower movement)
-        if (heroParallaxRef.current) {
-          heroParallaxRef.current.style.transform = `translate3d(0, ${
-            scrollY * 0.04
-          }px, 0)`;
-        }
-
-        animationFrameId.current = null;
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (animationFrameId.current !== null) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
-    };
-  }, []);
 
   const getErrorMessage = (error: ApiError): ErrorMessage => {
     // Check for server-provided error details first
@@ -154,7 +114,7 @@ const ErrorHandler = ({ error, onRetry, isLoading }: ErrorHandlerProps) => {
     if (error) {
       showMessage({
         closable: true,
-        sticky: true,
+        sticky: false,
         severity: 'error',
         summary: errorMessage.summary,
         detail: errorMessage.detail,
@@ -165,15 +125,9 @@ const ErrorHandler = ({ error, onRetry, isLoading }: ErrorHandlerProps) => {
   if (!error) return null;
 
   return (
-    <div
-      className='flex justify-content-center align-items-center w-full h-full z-1 error-container'
-      ref={heroParallaxRef}
-    >
+    <div className='flex justify-content-center align-items-center w-full h-full z-1 error-container'>
       <Tilty glare={false} scale={1.04} max={5} reverse={true}>
-        <div
-          className='flex flex-column justify-content-around align-items-center surface-card border-round border-solid border-1 border-red-900 py-8 px-8 error-card'
-          ref={parallaxRef}
-        >
+        <div className='flex flex-column justify-content-around align-items-center surface-card border-round border-solid border-1 border-red-900 py-8 px-8 error-card'>
           <div className='flex flex-column align-items-center'>
             <div className='flex justify-content-center align-items-center'>
               <i className='pi pi-exclamation-triangle text-2xl text-red-500' />
