@@ -6,13 +6,13 @@ const Hero = () => {
       <div className='hero-inner-container'>
         <div className='hero-text-container'>
           <h1
-            className='text-5xl font-italic font-bold text-center hero-text-main'
+            className='md:text-5xl text-3xl font-italic font-bold text-center hero-text-main'
             style={{ lineHeight: '0.7', letterSpacing: '0.3rem' }}
           >
             THE
             <br />
             <span
-              className='text-primary text-8xl hero-text-weather'
+              className='text-primary md:text-8xl text-7xl hero-text-weather'
               style={{
                 letterSpacing: '0.6rem',
               }}

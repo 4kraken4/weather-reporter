@@ -17,6 +17,7 @@ export type WeatherDataFetchErrorType = {
   message: string;
   district: string;
   timestamp: number;
+  error: unknown;
 };
 
 export type CacheItem = {
