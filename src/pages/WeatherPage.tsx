@@ -1,10 +1,9 @@
 import LkMap from '@features/weather/components/map-lk/LkMap';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Skeleton } from 'primereact/skeleton';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import ErrorHandler from '@/core/components/error/errorHandler';
-import { WeatherServiceError } from '@/core/errors/WeatherService.error';
 import { useMessage } from '@/core/hooks/useMessage';
 import { useTheme } from '@/core/hooks/useTheme';
 import { HumidityIndicator } from '@/features/weather/components/humidity-indicator/HumidityIndicator';
@@ -31,9 +30,15 @@ export const WeatherPage = () => {
     },
   ]);
 
+  const isRegionNotFoundError = useCallback(
+    (err: typeof error) =>
+      err?.error && err.message?.includes("couldn't find the region"),
+    []
+  );
+
   useEffect(() => {
     if (data === null) {
-      void fetchWeatherData('Colombo');
+      void fetchWeatherData('colombo');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -60,7 +65,7 @@ export const WeatherPage = () => {
 
   useEffect(() => {
     if (error) {
-      if (error.error instanceof WeatherServiceError) {
+      if (error.error && !isRegionNotFoundError(error)) {
         showMessage({
           severity: 'error',
           summary: 'Error',
@@ -69,9 +74,9 @@ export const WeatherPage = () => {
         });
       }
     }
-  }, [error, showMessage]);
+  }, [error, isRegionNotFoundError, showMessage]);
 
-  if (error && !(error.error instanceof WeatherServiceError)) {
+  if (isRegionNotFoundError(error) && error) {
     return <ErrorHandler error={error} onRetry={retry} isLoading={loading} />;
   }
 
@@ -107,7 +112,7 @@ export const WeatherPage = () => {
                           isDarkMode ? 'text-cyan-300' : 'text-cyan-700'
                         }`}
                       >
-                        {data.name}, {data.sys.country}
+                        {data?.cityName}, {data?.system?.country}
                       </h4>
                     </div>
                     <div className='col-12 md:col-3 flex flex-column justify-content-center md:align-items-start align-items-center'>
@@ -117,8 +122,8 @@ export const WeatherPage = () => {
                         }`}
                       >
                         <img
-                          src={`${owIconURL}/${data.weather[0].icon}@2x.png`}
-                          alt={data.weather[0].description}
+                          src={`${owIconURL}/${data?.conditions[0].icon}@2x.png`}
+                          alt={data.conditions[0]?.description}
                         />
                       </p>
                     </div>
@@ -127,12 +132,12 @@ export const WeatherPage = () => {
                     <p className='text-sm text-800'>
                       Temperature:{' '}
                       <span className='font-bold font-italic'>
-                        {data ? data.main.temp : ''}°C
+                        {data ? data.metrics.temp : ''}°C
                       </span>
                     </p>
                     {data && (
                       <TemperatureIndicator
-                        temperature={data ? data.main.temp : 0}
+                        temperature={data ? data.metrics.temp : 0}
                         showLabel={false}
                         minTemp={-5}
                         maxTemp={40}
@@ -162,13 +167,13 @@ export const WeatherPage = () => {
                     <p className='text-sm text-800'>
                       Humidity:{' '}
                       <span className='font-bold font-italic'>
-                        {data ? data.main.humidity : ''}%
+                        {data ? data.metrics.humidity : ''}%
                       </span>
                     </p>
                     {data && (
                       <HumidityIndicator
                         showLabel={false}
-                        humidity={data ? data.main.humidity : 0}
+                        humidity={data ? data.metrics.humidity : 0}
                         size={22}
                       />
                     )}
