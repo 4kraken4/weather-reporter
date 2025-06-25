@@ -4,6 +4,8 @@ import { Skeleton } from 'primereact/skeleton';
 import { useEffect, useState } from 'react';
 
 import ErrorHandler from '@/core/components/error/errorHandler';
+import { WeatherServiceError } from '@/core/errors/WeatherService.error';
+import { useMessage } from '@/core/hooks/useMessage';
 import { useTheme } from '@/core/hooks/useTheme';
 import { HumidityIndicator } from '@/features/weather/components/humidity-indicator/HumidityIndicator';
 import { WeatherInfoTab } from '@/features/weather/components/moreinfo-tab/MoreInfoTab';
@@ -15,6 +17,8 @@ import './styles/WeatherPage.scss';
 export const WeatherPage = () => {
   const { isDarkMode } = useTheme();
   const [isMapVisible, _setIsMapVisible] = useState(false);
+  const owIconURL = import.meta.env.VITE_OPEN_WEATHER_ICON_URL as string;
+  const { showMessage } = useMessage();
 
   const { data, error, loading, currentDistrict, retry, fetchWeatherData } =
     useWeatherData();
@@ -54,7 +58,20 @@ export const WeatherPage = () => {
     });
   };
 
-  if (error) {
+  useEffect(() => {
+    if (error) {
+      if (error.error instanceof WeatherServiceError) {
+        showMessage({
+          severity: 'error',
+          summary: 'Error',
+          detail: `Weather data for "${error.district}" could not be found.`,
+          life: 5000,
+        });
+      }
+    }
+  }, [error, showMessage]);
+
+  if (error && !(error.error instanceof WeatherServiceError)) {
     return <ErrorHandler error={error} onRetry={retry} isLoading={loading} />;
   }
 
@@ -100,7 +117,7 @@ export const WeatherPage = () => {
                         }`}
                       >
                         <img
-                          src={`${import.meta.env.VITE_OPEN_WEATHER_ICON_URL}/${data.weather[0].icon}@2x.png`}
+                          src={`${owIconURL}/${data.weather[0].icon}@2x.png`}
                           alt={data.weather[0].description}
                         />
                       </p>

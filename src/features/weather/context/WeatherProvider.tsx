@@ -66,6 +66,7 @@ export const WeatherProvider: React.FC<React.PropsWithChildren> = ({ children })
           message: errorMessage,
           district,
           timestamp: Date.now(),
+          error: err,
         });
         if (!isRetry) setWeatherData(null);
       } finally {
