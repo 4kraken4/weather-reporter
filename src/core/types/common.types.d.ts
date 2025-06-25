@@ -44,21 +44,21 @@ export type SearchModalProps = {
 
 // Weather API response types
 export type WeatherResponseType = {
-  coord: Coord;
-  weather: Weather[];
-  base: string;
-  main: Main;
+  coordinates: Coord;
+  conditions: Weather[];
+  dataSource: string;
+  metrics: Main;
   visibility: number;
   wind: Wind;
   clouds: Clouds;
   snow?: Record<string, number>;
   rain?: Record<string, number>;
-  dt: number;
-  sys: Sys;
+  timestamp: number;
+  system: Sys;
   timezone: number;
-  id: number;
-  name: string;
-  cod: number;
+  cityId: number;
+  cityName: string;
+  responseCode: number;
 };
 
 export type Coord = {
