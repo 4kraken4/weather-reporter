@@ -9,13 +9,10 @@ export const WeatherService = {
     options?: { signal?: AbortSignal }
   ): Promise<WeatherResponseType> {
     try {
-      return await apiService.get<WeatherResponseType>('/weather', {
+      return apiService.get<WeatherResponseType>('/weather/current', {
         params: {
-          q: `${city},${countryCode}`,
-          appid: import.meta.env.VITE_WEATHER_API_KEY as string,
-          units: (import.meta.env.VITE_WEATHER_API_UNITS as string) || 'metric',
-          lang: (import.meta.env.VITE_WEATHER_API_LANG as string) || 'en',
-          mode: (import.meta.env.VITE_WEATHER_API_MODE as string) || 'json',
+          city,
+          ccode: countryCode,
         },
         signal: options?.signal,
       });

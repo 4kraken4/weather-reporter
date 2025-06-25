@@ -8,7 +8,7 @@ export const WeatherInfoTab: React.FC<WeatherResponseType> = (
       <p>
         Weather:{' '}
         <span className='font-bold font-italic'>
-          {data ? data.weather[0].description : 'No data available'}
+          {data ? data.weather[0]?.description : 'No data available'}
         </span>
       </p>
       <p>

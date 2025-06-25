@@ -33,7 +33,7 @@ export const WeatherPage = () => {
 
   useEffect(() => {
     if (data === null) {
-      void fetchWeatherData('Colombo');
+      void fetchWeatherData('colombo');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -107,7 +107,7 @@ export const WeatherPage = () => {
                           isDarkMode ? 'text-cyan-300' : 'text-cyan-700'
                         }`}
                       >
-                        {data.name}, {data.sys.country}
+                        {data?.name}, {data?.sys?.country}
                       </h4>
                     </div>
                     <div className='col-12 md:col-3 flex flex-column justify-content-center md:align-items-start align-items-center'>
@@ -117,8 +117,8 @@ export const WeatherPage = () => {
                         }`}
                       >
                         <img
-                          src={`${owIconURL}/${data.weather[0].icon}@2x.png`}
-                          alt={data.weather[0].description}
+                          src={`${owIconURL}/${data?.weather[0].icon}@2x.png`}
+                          alt={data.weather[0]?.description}
                         />
                       </p>
                     </div>
