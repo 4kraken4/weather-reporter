@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaTint } from 'react-icons/fa';
+
 import './styles/HumidityIndicator.scss';
 
 type HumidityIndicatorProps = {
@@ -104,12 +105,7 @@ export const HumidityIndicator = ({
         ))}
       </div>
 
-      <span
-        className='humidity-value'
-        style={{ color: getHumidityColor(normalizedHumidity) }}
-      >
-        {showLabel ? `${humidity}%` : ''}
-      </span>
+      {showLabel && <div className='humidity-label'>{humidity.toFixed(0)}%</div>}
     </div>
   );
 };
