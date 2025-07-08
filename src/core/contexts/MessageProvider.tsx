@@ -8,10 +8,6 @@ import { MessageContext } from './MessageContext';
 
 const MAX_MESSAGES = 2;
 
-export type MessagesRef = {
-  show: (options: Message) => void;
-};
-
 export const MessageProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const messagesRef = useRef<Messages>(null);
   const queueRef = useRef<Message[]>([]);

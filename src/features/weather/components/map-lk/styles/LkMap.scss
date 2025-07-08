@@ -17,7 +17,9 @@
   .legend-title {
     display: flex;
     margin-bottom: 5px;
-    font: 0.6rem 'Roboto', sans-serif;
+    font:
+      0.6rem 'Roboto',
+      sans-serif;
     font-weight: var(--text-0);
   }
 
@@ -38,14 +40,18 @@
   .legend-scale-text {
     display: flex;
     justify-content: space-between;
-    font: 0.5rem 'Roboto', sans-serif;
+    font:
+      0.5rem 'Roboto',
+      sans-serif;
     font-weight: var(--text-0);
   }
 }
 
 // smooth transition for leaflet map
 .leaflet-interactive {
-  transition: fill 0.3s ease-in-out, stroke 0.3s ease-in-out;
+  transition:
+    fill 0.3s ease-in-out,
+    stroke 0.3s ease-in-out;
 }
 
 .svg-filters {
@@ -60,5 +66,256 @@
 
   &:hover {
     filter: url(#district-glow) brightness(1.1);
+  }
+}
+
+// Disabled districts styling
+.disabled-district {
+  cursor: not-allowed !important;
+  pointer-events: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.1) 2px,
+      rgba(255, 255, 255, 0.1) 4px
+    );
+    pointer-events: none;
+  }
+}
+
+.leaflet-interactive.disabled-district {
+  transition: none;
+  opacity: 0.4;
+  filter: grayscale(50%);
+}
+
+// District Pointer Animation Styles
+.district-pointer-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.district-pointer {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+
+  .pointer-dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--red-500);
+    border: 2px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    animation: pulse-dot 2s infinite;
+    z-index: 1002;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--red-500);
+      border-radius: 50%;
+      animation: ripple 2s infinite;
+    }
+  }
+  .pointer-line {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    height: 2px;
+    width: 0;
+    background: linear-gradient(
+      to right,
+      var(--red-500),
+      var(--red-400),
+      transparent
+    );
+    animation: extend-line 0.8s ease-out forwards;
+    transform-origin: left center;
+    z-index: 1001;
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 8px solid var(--red-400);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      animation: show-arrow 0.3s ease-out 0.8s forwards;
+      opacity: 0;
+    }
+  }
+
+  .district-info-panel {
+    position: absolute;
+    min-width: 250px;
+    max-width: 300px;
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    pointer-events: auto;
+    animation: slide-in-panel 0.4s ease-out 1.2s forwards;
+    z-index: 1003;
+
+    .info-panel-content {
+      padding: 1rem;
+      position: relative;
+
+      .district-name {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-color);
+      }
+
+      .district-detail {
+        margin: 0.25rem 0;
+        font-size: 0.85rem;
+        color: var(--text-color-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i {
+          width: 16px;
+          color: var(--primary-color);
+        }
+      }
+
+      .district-description {
+        margin: 0.5rem 0 0 0;
+        font-size: 0.8rem;
+        color: var(--text-color-secondary);
+        line-height: 1.4;
+      }
+
+      .close-pointer-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: none;
+        border: none;
+        color: var(--text-color-secondary);
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-color);
+        }
+
+        i {
+          font-size: 0.8rem;
+        }
+      }
+    }
+
+    // Arrow pointing to the line
+    &::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-right: 8px solid var(--surface-card);
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: -9px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-right: 8px solid var(--surface-border);
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+    }
+  }
+}
+
+// Animations
+@keyframes pulse-dot {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2);
+  }
+}
+
+@keyframes extend-line {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: var(--target-width, 150px);
+  }
+}
+
+@keyframes show-arrow {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+@keyframes slide-in-panel {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
   }
 }

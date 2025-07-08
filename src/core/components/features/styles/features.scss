@@ -1,0 +1,405 @@
+/* Features Section - Performance Optimized */
+
+.features {
+  position: relative;
+  padding: 100px 0;
+  background: var(--surface-ground);
+  overflow: hidden;
+
+  // Background elements with CSS-only animations for performance
+  &__background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at top, rgba(6, 182, 212, 0.06) 0%, transparent 60%),
+        radial-gradient(
+          ellipse at bottom,
+          rgba(34, 211, 238, 0.06) 0%,
+          transparent 60%
+        );
+      opacity: 0.4;
+    }
+  }
+
+  &__bg-gradient-1 {
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
+    filter: blur(20px);
+    animation: float 20s ease-in-out infinite;
+  }
+
+  &__bg-gradient-2 {
+    position: absolute;
+    bottom: -20%;
+    right: -20%;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.06) 0%, transparent 50%);
+    filter: blur(25px);
+    animation: float 25s ease-in-out infinite reverse;
+  }
+
+  &__floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(10px);
+    opacity: 0.3;
+    animation: float 15s ease-in-out infinite;
+
+    &--1 {
+      top: 20%;
+      left: 10%;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
+    }
+
+    &--2 {
+      top: 60%;
+      right: 15%;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(
+        circle,
+        rgba(34, 211, 238, 0.15) 0%,
+        transparent 70%
+      );
+      animation-delay: -8s;
+    }
+  }
+
+  &__grid-pattern {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(6, 182, 212, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.08) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.3;
+    animation: gridMove 30s linear infinite;
+
+    @media (max-width: 768px) {
+      animation: none;
+      opacity: 0.2;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  // Container
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  // Header
+  &__header {
+    text-align: center;
+    margin-bottom: 4rem;
+    max-width: 800px;
+    margin-inline: auto;
+
+    h2 {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+
+      @media (max-width: 768px) {
+        font-size: 2.5rem;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 2rem;
+      }
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: var(--text-color-secondary);
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+
+      @media (max-width: 768px) {
+        font-size: 1.1rem;
+        padding-inline: 1rem;
+      }
+    }
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(6, 182, 212, 0.08);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    border-radius: 50px;
+    padding: 0.5rem 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--primary-color);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    i {
+      color: #06b6d4;
+      font-size: 0.8rem;
+    }
+  }
+
+  &__title-highlight {
+    background: linear-gradient(135deg, var(--primary-color), #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &__text-accent {
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  &__stats-mini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    padding: 1.5rem 2rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(6, 182, 212, 0.1);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+
+    @media (max-width: 768px) {
+      gap: 1.5rem;
+      padding: 1.2rem 1.5rem;
+    }
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+    }
+  }
+
+  &__stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  &__stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1;
+
+    @media (max-width: 480px) {
+      font-size: 1.3rem;
+    }
+  }
+
+  &__stat-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__stat-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(6, 182, 212, 0.3);
+
+    @media (max-width: 480px) {
+      width: 30px;
+      height: 1px;
+    }
+  }
+
+  // Grid
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 480px) {
+      gap: 1rem;
+    }
+  }
+
+  // Cards
+  &__card {
+    height: 100%;
+    min-height: 200px;
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    @media (max-width: 768px) {
+      min-height: 180px;
+    }
+  }
+
+  &__card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+    padding: 1rem;
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin: 1rem 0 0.5rem;
+      letter-spacing: -0.01em;
+
+      @media (max-width: 480px) {
+        font-size: 1.2rem;
+      }
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: var(--text-color-secondary);
+      line-height: 1.5;
+      margin: 0;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+
+      @media (max-width: 480px) {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  &__icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 480px) {
+      font-size: 2rem;
+    }
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
+    padding: 80px 0;
+
+    .features__container {
+      padding-inline: 1.5rem;
+    }
+
+    .features__header {
+      margin-bottom: 3rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 60px 0;
+
+    .features__container {
+      padding-inline: 1rem;
+    }
+
+    .features__header {
+      margin-bottom: 2.5rem;
+    }
+  }
+
+  // Dark theme
+  .layout-dark & {
+    .features__grid-pattern {
+      background-image:
+        linear-gradient(rgba(6, 182, 212, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.12) 1px, transparent 1px);
+      opacity: 0.25;
+    }
+
+    .features__background::before {
+      background:
+        radial-gradient(ellipse at top, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
+        radial-gradient(
+          ellipse at bottom,
+          rgba(34, 211, 238, 0.08) 0%,
+          transparent 60%
+        );
+      opacity: 0.6;
+    }
+
+    .features__badge {
+      background: rgba(6, 182, 212, 0.12);
+      border-color: rgba(6, 182, 212, 0.3);
+    }
+
+    .features__stats-mini {
+      background: rgba(31, 41, 55, 0.6);
+      border-color: rgba(6, 182, 212, 0.2);
+    }
+  }
+}
+
+// Optimized animations
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(180deg);
+  }
+}
+
+@keyframes gridMove {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(50px, 50px, 0);
+  }
+}

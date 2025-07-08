@@ -1,0 +1,175 @@
+/* Magic Card Component Styles - Optimized */
+
+.magic-card {
+  position: relative;
+  border: 1px solid;
+  cursor: pointer;
+  overflow: hidden;
+  background: var(--surface-card);
+  border-color: var(--surface-border);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  will-change: transform;
+  perspective: 1000px;
+  contain: layout style paint;
+  transform-style: preserve-3d;
+
+  &--disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none !important;
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  // Base hover effects (only when not disabled)
+  &:hover:not(&--disabled) {
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.15),
+      0 8px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  // Gradient overlay that follows mouse
+  &__gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+    will-change: opacity;
+  }
+
+  // Outer glow effect
+  &__glow {
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    right: -50px;
+    bottom: -50px;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(20px);
+    will-change: opacity;
+  }
+
+  // Border glow effect
+  &__border-glow {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border: 2px solid transparent;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  // Content container
+  &__content {
+    position: relative;
+    z-index: 3;
+    height: 100%;
+    width: 100%;
+  }
+
+  // Dark theme adjustments
+  .dark-theme & {
+    background: var(--surface-card);
+    border-color: var(--surface-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+    &:hover:not(&--disabled) {
+      background: var(--surface-hover);
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  // Light theme adjustments
+  .layout-light & {
+    background: var(--surface-card);
+    border-color: var(--surface-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    &:hover:not(&--disabled) {
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.08),
+        0 8px 16px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    // Reduce 3D effects on mobile for better performance
+    perspective: none;
+
+    &:hover:not(&--disabled) {
+      transform: translateY(-4px) !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    // Respect user's motion preferences
+    transition: none;
+    transform: none !important;
+
+    &__gradient,
+    &__glow,
+    &__border-glow {
+      transition: none;
+      animation: none;
+    }
+  }
+}
+
+// Optional: Magic card grid layout helper
+.magic-card-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+// Optional: Common magic card variations
+.magic-card {
+  // Feature card variant
+  &--feature {
+    text-align: center;
+    padding: 2rem;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Compact variant
+  &--compact {
+    padding: 1rem;
+    min-height: 120px;
+  }
+
+  // Large variant
+  &--large {
+    padding: 3rem;
+    min-height: 300px;
+  }
+}
