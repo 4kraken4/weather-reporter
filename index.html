@@ -8,7 +8,150 @@
     <title>Weather Reporter</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback content for when JavaScript is disabled or fails to load -->
+      <noscript>
+        <div
+          style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(
+              135deg,
+              #111827 0%,
+              #1f2937 50%,
+              #111827 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family:
+              'Inter',
+              -apple-system,
+              BlinkMacSystemFont,
+              'Segoe UI',
+              sans-serif;
+            color: rgba(255, 255, 255, 0.87);
+            text-align: center;
+            z-index: 10000;
+          "
+        >
+          <div style="max-width: 400px; padding: 2rem">
+            <img
+              src="/logo.svg"
+              alt="Weather Reporter Logo"
+              style="width: 80px; height: 80px; margin-bottom: 1rem"
+            />
+            <h1 style="font-size: 2rem; margin-bottom: 1rem; color: #22d3ee">
+              Weather Reporter
+            </h1>
+            <p style="margin-bottom: 1.5rem; opacity: 0.8">
+              Please enable JavaScript to use this application.
+            </p>
+            <div
+              style="
+                padding: 1rem;
+                background: rgba(34, 211, 238, 0.1);
+                border-radius: 8px;
+                border: 1px solid rgba(34, 211, 238, 0.3);
+              "
+            >
+              <p style="margin: 0; font-size: 0.9rem">
+                This app requires JavaScript to provide weather information and
+                interactive features.
+              </p>
+            </div>
+          </div>
+        </div>
+      </noscript>
+
+      <!-- Loading fallback for slow connections -->
+      <div
+        id="initial-loading"
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #111827 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family:
+            'Inter',
+            -apple-system,
+            BlinkMacSystemFont,
+            'Segoe UI',
+            sans-serif;
+          color: rgba(255, 255, 255, 0.87);
+          text-align: center;
+          z-index: 9999;
+        "
+      >
+        <div style="max-width: 400px; padding: 2rem">
+          <img
+            src="/logo.svg"
+            alt="Weather Reporter Logo"
+            style="width: 80px; height: 80px; margin-bottom: 1rem; opacity: 0.8"
+          />
+          <h1 style="font-size: 2rem; margin-bottom: 1rem; color: #22d3ee">
+            Weather Reporter
+          </h1>
+          <p style="margin-bottom: 1.5rem; opacity: 0.6">
+            Loading your weather companion...
+          </p>
+          <div
+            style="
+              width: 200px;
+              height: 4px;
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 2px;
+              overflow: hidden;
+            "
+          >
+            <div
+              style="
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, #22d3ee, #60f3e9);
+                animation: loading 2s infinite;
+              "
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes loading {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      /* Hide initial loading once React takes over */
+      .react-loaded #initial-loading {
+        display: none;
+      }
+    </style>
+
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Remove initial loading screen once React is ready -->
+    <script>
+      // Remove loading screen after a maximum of 5 seconds
+      setTimeout(() => {
+        const loading = document.getElementById('initial-loading');
+        if (loading) {
+          loading.style.display = 'none';
+        }
+      }, 5000);
+    </script>
   </body>
 </html>

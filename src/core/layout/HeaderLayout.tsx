@@ -2,7 +2,6 @@ import { useTheme } from '@core/hooks/useTheme';
 import { Button } from 'primereact/button';
 import type { TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { useLayout } from '../hooks/useLayout';
 
@@ -10,7 +9,7 @@ import SearchModal from '@/core/components/search/SearchModal';
 
 import './styles/header.scss';
 
-export type HeaderMenuItemType = {
+type HeaderMenuItemType = {
   key: string;
   icon?: string;
   tooltip?: string;
@@ -27,7 +26,6 @@ export type HeaderMenuItemType = {
 const Header = () => {
   const { uiState, setSearchModalOpen } = useLayout();
   const { toggleTheme, isDarkMode } = useTheme();
-  const navigate = useNavigate();
 
   const handleSearchOpenModal = () => {
     setSearchModalOpen(true);
@@ -104,15 +102,6 @@ const Header = () => {
       },
     },
     {
-      key: 'discord',
-      icon: 'pi pi-discord',
-      tooltip: 'Discord',
-      onClick: (e: React.MouseEvent) => {
-        e.preventDefault();
-        window.open('https://discord.com', '_blank');
-      },
-    },
-    {
       key: 'theme-toggle',
       classList:
         'header-menu-item-height header-menu-item-width text-400 text-xs font-light border-0 border-black-alpha-30 border-round-sm transition-all transition-duration-300 hover:border-primary focus:shadow-none',
@@ -120,17 +109,6 @@ const Header = () => {
       iconClassList: 'text-0 text-xs',
       tooltip: 'Toggle theme',
       onClick: handleThemeChange,
-    },
-    {
-      key: 'sign-in',
-      label: 'Sign In',
-      classList:
-        'header-menu-item-height px-2 text-xs text-500 border-1 surface-border border-round-sm surface-card transition-all transition-duration-300 hover:border-primary focus:shadow-none hover:bg-primary-600 hover:text-0',
-      tooltip: 'Sign in to your account',
-      onClick: (e: React.MouseEvent) => {
-        e.preventDefault();
-        void navigate('/auth/login');
-      },
     },
   ];
 

@@ -3,6 +3,12 @@ body {
   background-color: var(--surface-ground);
 }
 
+.layout-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .landing,
 .layout-wrapper {
   background-image: var(--glow-image);
@@ -24,4 +30,40 @@ body {
   flex-direction: column;
   flex: 1;
   padding: 0 1rem;
+}
+
+// Full-width utility for components that need to break out of layout constraints
+.full-width-content {
+  width: 100vw !important;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding: 0;
+}
+
+// Constrained content utility for standard layout components
+.constrained-content {
+  max-width: 1728px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+// Responsive layout adjustments
+@media (max-width: 768px) {
+  .layout-content {
+    padding: 0 0.75rem;
+  }
+
+  .constrained-content {
+    padding: 0 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-content {
+    padding: 0 0.5rem;
+  }
+
+  .constrained-content {
+    padding: 0 0.5rem;
+  }
 }

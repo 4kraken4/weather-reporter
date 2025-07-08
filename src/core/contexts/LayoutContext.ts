@@ -1,14 +1,8 @@
 import { createContext } from 'react';
 
-export type LayoutState = {
-  isSidebarOpen: boolean;
-  isMobileMenuOpen: boolean;
-  isHeaderVisible: boolean;
-  isFooterVisible: boolean;
-  isSearchModalOpen: boolean;
-};
+import type { LayoutState } from '../types/common.types';
 
-export type LayoutContextType = {
+type LayoutContextType = {
   uiState: LayoutState;
   toggleSidebar: () => void;
   toggleMobileMenu: () => void;

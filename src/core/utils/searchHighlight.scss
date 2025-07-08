@@ -1,0 +1,41 @@
+.search-highlight {
+  background-color: rgba(255, 255, 0, 0.15);
+  color: inherit;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 220, 0, 0.3);
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.2);
+}
+
+/* Dark theme specific adjustments */
+.layout-dark .search-highlight {
+  background-color: rgba(255, 235, 59, 0.12);
+  border: 1px solid rgba(255, 213, 79, 0.25);
+  box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.3);
+}
+
+/* Light theme specific adjustments */
+.layout-light .search-highlight {
+  background-color: rgba(255, 241, 118, 0.2);
+  border: 1px solid rgba(255, 213, 79, 0.4);
+  box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.25);
+}
+
+.search-highlight:hover {
+  background-color: rgba(255, 235, 59, 0.25);
+  transform: scale(1.02);
+  box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.5);
+}
+
+.layout-dark .search-highlight:hover {
+  background-color: rgba(255, 235, 59, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 213, 79, 0.6);
+}
+
+.layout-light .search-highlight:hover {
+  background-color: rgba(255, 241, 118, 0.3);
+  box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.4);
+}

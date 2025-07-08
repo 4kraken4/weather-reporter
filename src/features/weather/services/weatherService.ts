@@ -29,4 +29,26 @@ export const WeatherService = {
       );
     }
   },
+
+  getCityById: async (
+    cityId: number,
+    options?: { signal?: AbortSignal }
+  ): Promise<WeatherResponseType> => {
+    try {
+      return apiService.get<WeatherResponseType>(`/weather/current/${cityId}`, {
+        signal: options?.signal,
+      });
+    } catch (error: unknown) {
+      if (isApiError(error)) {
+        throw new WeatherServiceError(
+          error.message,
+          error.response?.status,
+          error.response?.data
+        );
+      }
+      throw new WeatherServiceError(
+        error instanceof Error ? error.message : 'Unknown weather service error'
+      );
+    }
+  },
 };
