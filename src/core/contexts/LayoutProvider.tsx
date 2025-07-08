@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
-import { LayoutContext, type LayoutState } from './LayoutContext';
+import type { LayoutState } from '../types/common.types';
+
+import { LayoutContext } from './LayoutContext';
 
 export const LayoutProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [uiState, setUiState] = useState<LayoutState>(() => ({

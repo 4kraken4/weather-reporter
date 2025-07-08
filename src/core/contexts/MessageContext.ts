@@ -1,7 +1,8 @@
-import type { Message } from '@core/components/notification/MessageTemplate';
 import { createContext } from 'react';
 
-export type MessageContextType = {
+import type { Message } from '../components/notification/MessageTemplate';
+
+type MessageContextType = {
   showMessage: (message: Message) => void;
   hideMessage?: () => void;
 };

@@ -1,50 +1,11 @@
-import type { WeatherServiceError } from '@core/errors/WeatherService.error';
-import type { RouteObject } from 'react-router-dom';
-
-export type UseWeatherResultType = {
-  data: WeatherResponseType | null;
-  loading: boolean;
-  error: WeatherServiceError | null;
-};
-
-export type AppRoute = RouteObject & {
-  title?: string;
-  requiresAuth?: boolean;
-  icon?: React.ReactNode;
-  hiddenInMenu?: boolean;
-};
-
 export type Theme = {
   label: string;
   icon: string;
   theme: string;
 };
 
-export type ThemeContextType = {
-  theme: Theme;
-  toggleTheme: () => void;
-  isDarkMode: boolean;
-} | null;
-
-export type Themes = Record<string, Theme>;
-
-export type SearchResultProps = {
-  headIcon?: React.ReactNode;
-  title?: string;
-  description?: string;
-  location?: string;
-  tailIcon?: React.ReactNode;
-};
-
-export type SearchModalProps = {
-  isOpen: boolean;
-  setOpen: (open: boolean) => void;
-  onClose: () => void;
-};
-
-// Weather API response types
 export type WeatherResponseType = {
-  coordinates: Coord;
+  coordinates: Coordinates;
   conditions: Weather[];
   dataSource: string;
   metrics: Main;
@@ -61,19 +22,19 @@ export type WeatherResponseType = {
   responseCode: number;
 };
 
-export type Coord = {
+type Coordinates = {
   lon: number;
   lat: number;
 };
 
-export type Weather = {
+type Weather = {
   id: number;
   main: string;
   description: string;
   icon: string;
 };
 
-export type Main = {
+type Main = {
   temp: number;
   feels_like: number;
   temp_min: number;
@@ -84,18 +45,72 @@ export type Main = {
   grnd_level: number;
 };
 
-export type Wind = {
+type Wind = {
   speed: number;
   deg: number;
   gust: number;
 };
 
-export type Clouds = {
+type Clouds = {
   all: number;
 };
 
-export type Sys = {
+type Sys = {
   country: string;
   sunrise: number;
   sunset: number;
+};
+
+type Pagination = {
+  currentPage: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+};
+
+export type Countries = {
+  [key: string]: {
+    name: string;
+    flagUrl: string;
+    mapUrl: string;
+    region: string;
+    subregion: string;
+  };
+};
+
+type Suggestion = {
+  id: number;
+  name: string;
+  state: string;
+  countryCode: string;
+  coordinates: Coordinates;
+};
+
+export type LayoutState = {
+  isSidebarOpen: boolean;
+  isMobileMenuOpen: boolean;
+  isHeaderVisible: boolean;
+  isFooterVisible: boolean;
+  isSearchModalOpen: boolean;
+};
+
+export type WeatherDataFetchErrorType = {
+  message: string;
+  district: string;
+  timestamp: number;
+  error: unknown;
+};
+
+export type RegionResponseType = {
+  success: boolean;
+  searchTerm: string;
+  pagination: Pagination;
+  countries: Countries;
+  suggestions: Suggestion[];
+};
+
+export type SearchOptions = {
+  signal?: AbortSignal;
+  page?: number;
+  pageSize?: number;
 };

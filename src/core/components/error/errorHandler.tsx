@@ -5,17 +5,6 @@ import Tilty from 'react-tilty';
 import { useMessage } from '@/core/hooks/useMessage';
 import './styles/errorHandler.scss';
 
-type ApiError = {
-  response?: {
-    data?: {
-      summary?: string;
-      detail?: string;
-    };
-    status?: number;
-  };
-  message?: string;
-};
-
 type ErrorMessage = {
   summary: string;
   detail: string;
@@ -25,6 +14,17 @@ type ErrorHandlerProps = {
   error: ApiError;
   onRetry?: () => void;
   isLoading: boolean;
+};
+
+type ApiError = {
+  response?: {
+    data?: {
+      summary?: string;
+      detail?: string;
+    };
+    status?: number;
+  };
+  message?: string;
 };
 
 const ErrorHandler = ({ error, onRetry, isLoading }: ErrorHandlerProps) => {

@@ -1,7 +1,10 @@
-import type { Theme, Themes } from '@core/types/common.types';
 import { useEffect, useState } from 'react';
 
+import type { Theme } from '../types/common.types';
+
 import { ThemeContext } from './ThemeContext';
+
+type Themes = Record<string, Theme>;
 
 const themes: Themes = {
   light: {
@@ -29,12 +32,43 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     // Check if the savedTheme is a valid key in themes
     const isValidTheme = savedTheme && savedTheme in themes;
 
+    let selectedTheme;
     if (isValidTheme) {
-      setTheme(themes[savedTheme]);
+      selectedTheme = themes[savedTheme];
     } else if (systemPrefersDark) {
-      setTheme(themes.dark);
+      selectedTheme = themes.dark;
     } else {
-      setTheme(themes.light);
+      selectedTheme = themes.light;
+    }
+
+    setTheme(selectedTheme);
+
+    // Apply layout classes immediately on mount
+    const applyLayoutClasses = (theme: Theme) => {
+      const layoutWrapper: HTMLElement | null =
+        document.querySelector('.layout-wrapper');
+      if (layoutWrapper) {
+        layoutWrapper.setAttribute('data-p-theme', theme.theme);
+        layoutWrapper.classList.remove('layout-dark', 'layout-light');
+        layoutWrapper.classList.add(
+          theme.theme === themes.dark.theme ? 'layout-dark' : 'layout-light'
+        );
+      }
+    };
+
+    // Apply immediately or wait for DOM
+    if (document.querySelector('.layout-wrapper')) {
+      applyLayoutClasses(selectedTheme);
+    } else {
+      // Wait for DOM to be ready
+      const observer = new MutationObserver(() => {
+        const layoutWrapper = document.querySelector('.layout-wrapper');
+        if (layoutWrapper) {
+          applyLayoutClasses(selectedTheme);
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
     }
   }, []);
 
@@ -72,13 +106,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       document.querySelector('.layout-wrapper');
     if (layoutWrapper) {
       layoutWrapper.setAttribute('data-p-theme', theme.theme);
-      layoutWrapper.classList.toggle(
-        'layout-dark',
-        theme.theme === themes.dark.theme
-      );
-      layoutWrapper.classList.toggle(
-        'layout-light',
-        theme.theme === themes.light.theme
+      layoutWrapper.classList.remove('layout-dark', 'layout-light');
+      layoutWrapper.classList.add(
+        theme.theme === themes.dark.theme ? 'layout-dark' : 'layout-light'
       );
     }
   }, [theme]);

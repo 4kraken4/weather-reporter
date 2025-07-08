@@ -5,7 +5,7 @@ import './styles/app-layout.scss';
 
 export const AppLayout = () => {
   return (
-    <div className='layout-wrapper md:h-screen'>
+    <div className='layout-wrapper'>
       <Header />
       <main className='layout-content w-full h-full flex flex-column justify-content-center align-items-center'>
         <Outlet />

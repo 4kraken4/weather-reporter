@@ -1,11 +1,11 @@
-export type ApiError = {
+type WeatherServiceApiError = {
   response?: {
     status?: number;
     data?: unknown;
   };
 } & Error;
 
-export function isApiError(error: unknown): error is ApiError {
+export function isApiError(error: unknown): error is WeatherServiceApiError {
   return (
     error instanceof Error &&
     typeof error === 'object' &&

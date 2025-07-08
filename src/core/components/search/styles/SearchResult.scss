@@ -1,0 +1,7 @@
+.search-result-container {
+  position: relative;
+}
+
+.search-result-container:hover .search-result-tail-icon {
+  color: var(--primary-color);
+}

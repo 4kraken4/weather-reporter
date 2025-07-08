@@ -1,0 +1,444 @@
+/* Splash Screen Styles */
+
+// Variables for calm, weather-themed colors
+:root {
+  --splash-primary: #22d3ee; // Cyan from theme
+  --splash-accent: #60f3e9; // Light cyan from logo
+  --splash-dark: #111827; // Dark background
+  --splash-medium: #1f2937; // Medium background
+  --splash-glow: rgba(34, 211, 238, 0.3); // Glow effect
+}
+
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family:
+    'Inter var',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    sans-serif;
+  /* Performance: Enable hardware acceleration */
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.splash-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    var(--splash-dark) 0%,
+    var(--splash-medium) 50%,
+    var(--splash-dark) 100%
+  );
+  z-index: 1;
+
+  .gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      circle at 50% 40%,
+      rgba(34, 211, 238, 0.1) 0%,
+      rgba(26, 146, 167, 0.05) 30%,
+      transparent 70%
+    );
+  }
+}
+
+.splash-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 500px;
+  padding: 2rem;
+}
+
+.logo-container {
+  margin-bottom: 2rem;
+
+  .logo-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .logo {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 30px rgba(34, 211, 238, 0.3));
+    transition: all 0.3s ease;
+    /* Performance: GPU acceleration */
+    will-change: transform;
+    transform: translateZ(0);
+
+    @media (max-width: 768px) {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  .logo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) translateZ(0);
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, var(--splash-glow) 0%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: pulse 2s ease-in-out infinite;
+    /* Performance: GPU acceleration */
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+
+    @media (max-width: 768px) {
+      width: 100px;
+      height: 100px;
+    }
+  }
+}
+
+.title-container {
+  margin-bottom: 1rem;
+
+  .app-title {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--splash-primary), var(--splash-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--splash-primary);
+    margin: 0;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+
+    @media (max-width: 768px) {
+      font-size: 2.5rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 2rem;
+    }
+  }
+}
+
+.tagline-container {
+  margin-bottom: 3rem;
+
+  .tagline {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+.loading-container {
+  width: 100%;
+  max-width: 300px;
+  margin-top: 2rem;
+
+  .loading-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    backdrop-filter: blur(4px);
+
+    .loading-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(
+        90deg,
+        var(--splash-primary),
+        var(--splash-accent),
+        var(--splash-primary)
+      );
+      border-radius: 3px;
+      position: relative;
+      transform-origin: left center;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.5),
+          transparent
+        );
+        animation: shimmer 1.8s ease-in-out infinite;
+      }
+    }
+  }
+}
+
+// Floating clouds
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50px;
+  z-index: 2;
+  filter: blur(1px);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+  }
+
+  &.cloud-1 {
+    width: 80px;
+    height: 30px;
+    top: 20%;
+    left: 10%;
+    animation: float 6s ease-in-out infinite;
+
+    &::before {
+      width: 35px;
+      height: 35px;
+      top: -15px;
+      left: 15px;
+    }
+
+    &::after {
+      width: 30px;
+      height: 30px;
+      top: -10px;
+      left: 45px;
+    }
+  }
+
+  &.cloud-2 {
+    width: 100px;
+    height: 40px;
+    top: 30%;
+    right: 15%;
+    animation: float 8s ease-in-out infinite reverse;
+
+    &::before {
+      width: 40px;
+      height: 40px;
+      top: -20px;
+      left: 20px;
+    }
+
+    &::after {
+      width: 35px;
+      height: 35px;
+      top: -15px;
+      left: 55px;
+    }
+  }
+
+  &.cloud-3 {
+    width: 60px;
+    height: 25px;
+    bottom: 25%;
+    left: 20%;
+    animation: float 7s ease-in-out infinite;
+
+    &::before {
+      width: 25px;
+      height: 25px;
+      top: -12px;
+      left: 10px;
+    }
+
+    &::after {
+      width: 20px;
+      height: 20px;
+      top: -8px;
+      left: 35px;
+    }
+  }
+}
+
+// Weather particles
+.weather-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--splash-accent);
+    border-radius: 50%;
+    opacity: 0.6;
+    /* Performance: GPU acceleration */
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+
+    &.particle-1 {
+      top: 15%;
+      left: 15%;
+    }
+
+    &.particle-2 {
+      top: 25%;
+      right: 20%;
+    }
+
+    &.particle-3 {
+      top: 40%;
+      left: 10%;
+    }
+
+    &.particle-4 {
+      top: 60%;
+      right: 15%;
+    }
+
+    &.particle-5 {
+      bottom: 30%;
+      left: 25%;
+    }
+
+    &.particle-6 {
+      bottom: 20%;
+      right: 25%;
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: light) {
+  .splash-screen {
+    --splash-dark: #f8fafc;
+    --splash-medium: #e2e8f0;
+
+    .splash-background {
+      background: linear-gradient(
+        135deg,
+        var(--splash-dark) 0%,
+        var(--splash-medium) 50%,
+        var(--splash-dark) 100%
+      );
+    }
+
+    .tagline {
+      color: rgba(0, 0, 0, 0.7) !important;
+    }
+
+    .cloud {
+      background: rgba(0, 0, 0, 0.03);
+
+      &::before,
+      &::after {
+        background: rgba(0, 0, 0, 0.03);
+      }
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .splash-screen * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .logo-glow {
+    animation: none !important;
+  }
+
+  .cloud {
+    animation: none !important;
+  }
+}
+
+// High contrast support
+@media (prefers-contrast: high) {
+  .splash-screen {
+    --splash-primary: #00e5ff;
+    --splash-accent: #00bcd4;
+
+    .app-title {
+      -webkit-text-fill-color: var(--splash-primary);
+      color: var(--splash-primary);
+    }
+
+    .logo {
+      filter: contrast(1.2) drop-shadow(0 10px 30px rgba(0, 229, 255, 0.5));
+    }
+  }
+}
