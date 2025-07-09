@@ -1,0 +1,27 @@
+.search-suggestions {
+  &__container {
+    @extend .p-2;
+  }
+
+  &__list {
+    @extend .flex;
+    @extend .flex-column;
+    @extend .list-none;
+    @extend .p-0;
+    @extend .m-0;
+    @extend .gap-1;
+  }
+
+  &__item {
+    @extend .text-xs;
+    @extend .font-light;
+    @extend .h-2rem;
+    @extend .w-full;
+    @extend .justify-content-start;
+    @extend .hover\:surface-overlay;
+    @extend .hover\:text-primary;
+    @extend .focus\:outline-none;
+    @extend .focus\:shadow-none;
+    @extend .focus\:surface-overlay;
+  }
+}

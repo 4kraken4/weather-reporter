@@ -1,0 +1,14 @@
+.search-results {
+  &__list {
+    @extend .flex;
+    @extend .flex-column;
+    @extend .list-none;
+    @extend .p-0;
+    @extend .m-0;
+    @extend .gap-2;
+  }
+
+  &__pagination {
+    @extend .mt-3;
+  }
+}
