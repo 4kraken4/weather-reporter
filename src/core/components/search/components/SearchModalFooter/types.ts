@@ -1,7 +1,2 @@
-import { KeyboardCommand, SearchAnalytics } from '../../types/common';
-
-export interface SearchModalFooterProps {
-  analyticsEnabled?: boolean;
-  analytics?: SearchAnalytics;
-  keyboardCommands?: KeyboardCommand[];
-}
+export type { KeyboardCommand, KeyIcon } from '@core/components/search/types/common';
+export type { SearchModalFooterProps } from '@core/components/search/types/search.types';

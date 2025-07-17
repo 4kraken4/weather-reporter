@@ -1,9 +1,9 @@
+import { HourglassSpinner } from '@core/components/spinner';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { memo } from 'react';
 
-import HourglassSpinner from '../../spinner/HourglassSpinner';
-import { type SearchInputProps } from '../types/search.types';
+import type { SearchInputProps } from './types';
 
 export const SearchInput = memo(
   ({
@@ -18,18 +18,7 @@ export const SearchInput = memo(
   }: SearchInputProps) => {
     const renderLoadingIndicator = () => {
       if (isLoading.searching || isLoading.paginating || isLoading.retrying) {
-        return (
-          <HourglassSpinner
-            style={{
-              width: '100%',
-              height: '100%',
-              margin: 'auto',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          />
-        );
+        return <HourglassSpinner size={1} />;
       }
       if (isLoading.backgroundRefreshing) {
         return (

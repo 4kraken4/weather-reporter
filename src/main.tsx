@@ -1,13 +1,12 @@
+import { LoadingProvider } from '@core/contexts/LoadingProvider';
+import { MessageProvider } from '@core/contexts/MessageProvider';
+import { ThemeProvider } from '@core/contexts/ThemeProvider';
+import { ErrorBoundary } from '@core/errors/ErrorBoundary';
 import { PrimeReactProvider } from 'primereact/api';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import App from './App';
-import { LayoutProvider } from './core/contexts/LayoutProvider';
-import { LoadingProvider } from './core/contexts/LoadingProvider';
-import { MessageProvider } from './core/contexts/MessageProvider';
-import { ThemeProvider } from './core/contexts/ThemeProvider';
-import { ErrorBoundary } from './core/errors/ErrorBoundary';
 import './index.scss';
 
 const rootElement = document.getElementById('root');
@@ -30,9 +29,7 @@ if (rootElement) {
           <ThemeProvider>
             <LoadingProvider>
               <MessageProvider>
-                <LayoutProvider>
-                  <App />
-                </LayoutProvider>
+                <App />
               </MessageProvider>
             </LoadingProvider>
           </ThemeProvider>

@@ -1,6 +1,5 @@
+import type { LayoutState } from '@core/types/common.types';
 import { createContext } from 'react';
-
-import type { LayoutState } from '../types/common.types';
 
 type LayoutContextType = {
   uiState: LayoutState;
@@ -9,6 +8,7 @@ type LayoutContextType = {
   setHeaderVisibility: (visible: boolean) => void;
   setFooterVisibility: (visible: boolean) => void;
   setSearchModalOpen: (open: boolean) => void;
+  setHeaderButtonVisibility: (key: string, active: boolean) => void;
 };
 
 export const LayoutContext = createContext<LayoutContextType | undefined>(undefined);

@@ -1,7 +1,12 @@
-import { motion } from 'framer-motion';
+import { HourglassSpinner } from '@core/components/spinner';
+import { HumidityIndicator } from '@features/weather/components/humidity-indicator/HumidityIndicator';
+import { TemperatureIndicator } from '@features/weather/components/temp-indicator/TemperatureIndicator';
+import { WindDirectionIndicator } from '@features/weather/components/wind-direction-indicator/WindDirectionIndicator';
+import { useWeatherData } from '@features/weather/hooks/usetWeather';
+import { motion } from 'motion/react';
+import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Divider } from 'primereact/divider';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import { TabMenu } from 'primereact/tabmenu';
 import { Tag } from 'primereact/tag';
 import { Tooltip } from 'primereact/tooltip';
@@ -11,18 +16,26 @@ import {
   FaCloudRain,
   FaCompass,
   FaEye,
+  FaHome,
   FaMoon,
   FaSnowflake,
   FaSun,
   FaThermometerHalf,
   FaWind,
 } from 'react-icons/fa';
+import { RiMistFill } from 'react-icons/ri';
+import {
+  WiCloudy,
+  WiDayCloudy,
+  WiDayCloudyHigh,
+  WiDaySunny,
+  WiNightClear,
+  WiNightCloudy,
+  WiNightCloudyHigh,
+  WiThunderstorm,
+} from 'react-icons/wi';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { HumidityIndicator } from '@/features/weather/components/humidity-indicator/HumidityIndicator';
-import { TemperatureIndicator } from '@/features/weather/components/temp-indicator/TemperatureIndicator';
-import { WindDirectionIndicator } from '@/features/weather/components/wind-direction-indicator/WindDirectionIndicator';
-import { useWeatherData } from '@/features/weather/hooks/usetWeather';
 import './styles/WeatherPage.scss';
 
 type WeatherPageProps = Record<string, never>;
@@ -86,24 +99,24 @@ const WeatherPage: React.FC<WeatherPageProps> = () => {
 
   const getWeatherIcon = useCallback((iconCode: string): React.ReactElement => {
     const iconMap: Record<string, React.ReactElement> = {
-      '01d': <FaSun className='text-yellow-500' />,
-      '01n': <FaMoon className='text-blue-300' />,
-      '02d': <FaSun className='text-yellow-400' />,
-      '02n': <FaMoon className='text-blue-200' />,
-      '03d': <i className='pi pi-cloud text-gray-400' />,
-      '03n': <i className='pi pi-cloud text-gray-300' />,
-      '04d': <i className='pi pi-cloud text-gray-500' />,
-      '04n': <i className='pi pi-cloud text-gray-400' />,
+      '01d': <WiDaySunny className='text-yellow-500' />,
+      '01n': <WiNightClear className='text-blue-300' />,
+      '02d': <WiDayCloudy className='text-yellow-400' />,
+      '02n': <WiNightCloudy className='text-blue-200' />,
+      '03d': <WiCloudy className='text-gray-400' />,
+      '03n': <WiCloudy className='text-gray-300' />,
+      '04d': <WiDayCloudyHigh className='text-gray-500' />,
+      '04n': <WiNightCloudyHigh className='text-gray-400' />,
       '09d': <FaCloudRain className='text-blue-500' />,
       '09n': <FaCloudRain className='text-blue-400' />,
       '10d': <FaCloudRain className='text-blue-600' />,
       '10n': <FaCloudRain className='text-blue-500' />,
-      '11d': <i className='pi pi-bolt text-yellow-600' />,
-      '11n': <i className='pi pi-bolt text-yellow-500' />,
+      '11d': <WiThunderstorm className='text-yellow-600' />,
+      '11n': <WiThunderstorm className='text-yellow-500' />,
       '13d': <FaSnowflake className='text-blue-200' />,
       '13n': <FaSnowflake className='text-blue-100' />,
-      '50d': <i className='pi pi-eye-slash text-gray-400' />,
-      '50n': <i className='pi pi-eye-slash text-gray-300' />,
+      '50d': <RiMistFill className='text-gray-400' />,
+      '50n': <RiMistFill className='text-gray-300' />,
     };
     return iconMap[iconCode] ?? <i className='pi pi-question-circle text-gray-400' />;
   }, []);
@@ -121,7 +134,7 @@ const WeatherPage: React.FC<WeatherPageProps> = () => {
     return 'Poor';
   }, []);
 
-  const handleBackToSearch = useCallback(() => {
+  const handleBackToHome = useCallback(() => {
     void navigate('/');
   }, [navigate]);
 
@@ -133,7 +146,7 @@ const WeatherPage: React.FC<WeatherPageProps> = () => {
           <p>Please provide a valid city ID.</p>
           <button
             className='p-button p-button-primary mt-3'
-            onClick={handleBackToSearch}
+            onClick={handleBackToHome}
           >
             Back to Search
           </button>
@@ -151,15 +164,8 @@ const WeatherPage: React.FC<WeatherPageProps> = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <ProgressSpinner
-            style={{ width: '60px', height: '60px' }}
-            strokeWidth='3'
-            animationDuration='1s'
-          />
+          <HourglassSpinner size={1.3} />
           <h3 className='mt-3 text-primary'>Loading Weather Data</h3>
-          <p className='text-500'>
-            Getting latest weather information for {cityId}...
-          </p>
         </motion.div>
       </div>
     );
@@ -183,7 +189,7 @@ const WeatherPage: React.FC<WeatherPageProps> = () => {
               <button
                 type='button'
                 className='p-button p-button-outlined'
-                onClick={handleBackToSearch}
+                onClick={handleBackToHome}
               >
                 <i className='pi pi-arrow-left mr-2' />
                 Back to Search
@@ -215,13 +221,17 @@ const WeatherPage: React.FC<WeatherPageProps> = () => {
       {/* Header Section */}
       <motion.div className='weather-header' variants={itemVariants}>
         <div className='flex justify-content-between align-items-center mb-4'>
-          <button
-            className='p-button p-button-text p-button-plain'
-            onClick={handleBackToSearch}
-          >
-            <i className='pi pi-arrow-left mr-2' />
-            Back to Search
-          </button>
+          <Button
+            type='button'
+            severity='secondary'
+            label='Back to Search'
+            icon={<FaHome className='mr-2' />}
+            size='small'
+            iconPos='left'
+            className='focus:outline-none focus:shadow-none'
+            text
+            onClick={handleBackToHome}
+          />
           <Tag
             value={`Last Updated: ${formatTime(data.timestamp)}`}
             severity='info'

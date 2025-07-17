@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { type SearchKeyboardCommandsProps } from '../types/search.types';
+import { type SearchKeyboardCommandsProps } from './types';
 
 export const SearchKeyboardCommands = memo(
   ({ commands }: SearchKeyboardCommandsProps) => {

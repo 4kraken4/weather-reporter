@@ -1,25 +1,11 @@
+import { useSearchResultWeather } from '@core/hooks/useSearchResultWeather';
+import { highlightText } from '@core/utils/textHighlight';
 import { Skeleton } from 'primereact/skeleton';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useSearchResultWeather } from '@/core/hooks/useSearchResultWeather';
-import { highlightText } from '@/core/utils/textHighlight';
+import type { SearchResultProps } from './types/search.types';
 
 import './styles/SearchResult.scss';
-
-type SearchResultProps = {
-  headIcon?: React.ReactNode;
-  headIconAlt?: string;
-  title?: string;
-  description?: string;
-  location?: string;
-  tailIcon?: React.ReactNode;
-  searchTerm?: string;
-  isSelected?: boolean;
-  showAdditionalInfo?: boolean;
-  countryCode?: string;
-  state?: string;
-  onClick?: () => void;
-};
 
 export const SearchResult: React.FC<SearchResultProps> = ({
   headIcon,

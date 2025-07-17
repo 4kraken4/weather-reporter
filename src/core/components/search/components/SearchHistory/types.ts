@@ -1,5 +1,4 @@
-export interface SearchHistoryProps {
-  searches: string[];
-  onSearchSelect: (search: string) => void;
-  onClearHistory: () => void;
-}
+export {
+  MAX_HISTORICAL_SEARCHES,
+  type SearchHistoryProps,
+} from '@core/components/search/types/search.types';

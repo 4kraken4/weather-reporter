@@ -1,13 +1,12 @@
+import { SplashScreen, SuspenseFallback } from '@core/components/splash';
+import { LayoutProvider } from '@core/contexts/LayoutProvider';
+import { useAppLoading } from '@core/hooks/useAppLoading';
 import { RouterProvider } from '@core/router/RouterProvider';
 import 'primeflex/primeflex.css'; // flex
 import 'primeicons/primeicons.css'; // icons
 import 'primereact/resources/primereact.min.css'; // core css
 import { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-
-import { SplashScreen, SuspenseFallback } from './core/components/splash';
-
-import { useAppLoading } from '@/core/hooks/useAppLoading';
 
 function App() {
   const { isAppLoading, setAppLoading } = useAppLoading();
@@ -55,7 +54,9 @@ function App() {
       {!showSplashScreen && (
         <BrowserRouter>
           <Suspense fallback={<SuspenseFallback />}>
-            <RouterProvider />
+            <LayoutProvider>
+              <RouterProvider />
+            </LayoutProvider>
           </Suspense>
         </BrowserRouter>
       )}

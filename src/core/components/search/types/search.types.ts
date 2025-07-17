@@ -1,4 +1,14 @@
-import { type ReactNode } from 'react';
+import type {
+  CountryData,
+  KeyboardCommand,
+  KeyIcon,
+  LoadingState,
+  PaginationInfo,
+  SearchAnalytics,
+  SearchError,
+  SearchResult,
+  SearchSuggestion,
+} from './common';
 
 // Basic shared types
 export type SearchResultItem = {
@@ -6,28 +16,6 @@ export type SearchResultItem = {
   name: string;
   countryCode: string;
   state?: string;
-};
-
-export type SearchSuggestion = {
-  query: string;
-  type: 'historical' | 'suggested';
-};
-
-export type CountryData = {
-  name: string;
-  flagUrl: string;
-};
-
-export type SearchError = {
-  message: string;
-  retryable: boolean;
-};
-
-export type SearchPagination = {
-  currentPage: number;
-  totalPages: number;
-  pageSize: number;
-  totalItems: number;
 };
 
 export type SearchLoadingState = {
@@ -44,65 +32,80 @@ export type SearchModalProps = {
   onClose: () => void;
 };
 
-export type SearchHeaderProps = {
-  query: string;
-  isLoading: SearchLoadingState;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onClear: () => void;
-  onClose: () => void;
-  inputRef: React.RefObject<HTMLInputElement>;
-  formRef: React.RefObject<HTMLFormElement>;
-  hover: boolean;
-  isFocused: boolean;
-  onFocus: () => void;
-};
-
 export type SearchInputProps = {
   value: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
   onFocus: () => void;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   isLoading: SearchLoadingState;
   hover: boolean;
   isFocused: boolean;
 };
 
 export type SearchResultsProps = {
-  results: SearchResultItem[];
-  isLoading: SearchLoadingState;
-  error: SearchError | null;
-  pagination: SearchPagination;
-  onPageChange: (event: { first: number; rows: number }) => void;
-  onRetry: () => void;
+  results: SearchResult[];
+  countries: Record<string, CountryData>;
+  loading: LoadingState;
+  pagination: PaginationInfo;
   selectedIndex: number;
   searchTerm: string;
-  countries: Record<string, CountryData>;
-  onResultClick: (id: number) => void;
+  onResultSelect: (resultId: number) => void;
+  onPageChange: (event: { first: number; rows: number }) => void;
 };
 
 export type SearchSuggestionsProps = {
+  query: string;
   suggestions: SearchSuggestion[];
-  onSelect: (suggestion: string) => void;
+  loading: LoadingState;
+  onSelectSuggestion: (suggestion: string) => void;
 };
 
-export type RecentSearchesProps = {
-  searches: string[];
-  onSelect: (search: string) => void;
+export type SearchResultProps = {
+  headIcon?: React.ReactNode;
+  headIconAlt?: string;
+  title?: string;
+  description?: string;
+  location?: string;
+  tailIcon?: React.ReactNode;
+  searchTerm?: string;
+  isSelected?: boolean;
+  showAdditionalInfo?: boolean;
+  countryCode?: string;
+  state?: string;
+  onClick?: () => void;
+};
+
+export type SearchModalHeaderProps = {
+  query: string;
+  isLoading: {
+    searching: boolean;
+    paginating: boolean;
+    retrying: boolean;
+    backgroundRefreshing: boolean;
+  };
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
-  maxSearches: number;
+  onClose: () => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  formRef: React.RefObject<HTMLFormElement | null>;
+  hover: boolean;
+  isFocused: boolean;
+  onFocus: () => void;
+  keyboardCommands?: KeyboardCommand[];
 };
 
-export type SearchFooterProps = {
+export type SearchModalFooterProps = {
   analyticsEnabled?: boolean;
-  totalSearches?: number;
-  averageResponseTime?: number;
+  analytics?: SearchAnalytics;
+  keyboardCommands?: KeyboardCommand[];
 };
 
-export type KeyIcon = {
-  label: string;
-  icon: ReactNode;
+export type SearchHistoryProps = {
+  searches: string[];
+  onSearchSelect: (search: string) => void;
+  onClearHistory: () => void;
 };
 
 export type ModalKeyCommand = {
@@ -113,22 +116,6 @@ export type ModalKeyCommand = {
 export type SearchKeyboardCommandsProps = {
   commands: ModalKeyCommand[];
 };
-
-// Constants
-export const MAX_HISTORICAL_SEARCHES = 3;
-export const HISTORICAL_SEARCHES_KEY = 'weather-app-historical-searches';
-
-// Event handlers type definitions
-export type SearchSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => void;
-export type SearchChangeHandler = (
-  event: React.ChangeEvent<HTMLInputElement>
-) => void;
-export type SearchSelectHandler = (value: string) => void;
-export type SearchResultClickHandler = (id: number) => void;
-export type SearchPageChangeHandler = (event: {
-  first: number;
-  rows: number;
-}) => void;
 
 // Hook return types
 export type UseSearchHistoryReturn = {
@@ -143,3 +130,19 @@ export type UseSearchKeyboardReturn = {
   handleKeyDown: (event: KeyboardEvent) => void;
   activeCommands: ModalKeyCommand[];
 };
+
+export type SearchRetryProps = {
+  error: SearchError | null;
+  handleRetrySearch: () => void;
+  loading: {
+    retrying: boolean;
+  };
+};
+
+export type NotFoundProps = {
+  query: string;
+};
+
+// Constants
+export const MAX_HISTORICAL_SEARCHES = 3;
+export const HISTORICAL_SEARCHES_KEY = 'weather-app-historical-searches';

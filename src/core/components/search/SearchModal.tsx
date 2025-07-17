@@ -1,5 +1,5 @@
+import { OrbitSpinner, RadarSpinner } from '@core/components/spinner';
 import { useClickOutside, useDebounce, useEventListener } from 'primereact/hooks';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import {
   lazy,
   Suspense,
@@ -11,20 +11,18 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useRegionSearch } from '@/features/weather/hooks/useRegionSearch';
-
+import { SearchModalFooter, SearchModalHeader } from './components';
+import { type KeyboardCommand } from './types/common';
+import type { SearchModalProps } from './types/search.types';
 import {
-  SearchResults,
-  SearchSuggestions,
-  SearchHistory,
-  SearchModalHeader,
-  SearchModalFooter,
+  addToHistoricalSearches,
+  clearHistoricalSearches,
   loadHistoricalSearches,
   saveHistoricalSearches,
-  clearHistoricalSearches,
-  addToHistoricalSearches,
-} from './components';
-import { type KeyboardCommand } from './types/common';
+} from './utils/searchHistoryHelpers';
+
+import { useRegionSearch } from '@/features/weather/hooks/useRegionSearch';
+
 import './styles/SearchModal.scss';
 
 const Dialog = lazy(() =>
@@ -33,11 +31,29 @@ const Dialog = lazy(() =>
   }))
 );
 
-type SearchModalProps = {
-  isOpen: boolean;
-  setOpen: (open: boolean) => void;
-  onClose: () => void;
-};
+const SearchResults = lazy(() =>
+  import('./components').then(module => ({
+    default: module.SearchResults,
+  }))
+);
+
+const SearchRetry = lazy(() =>
+  import('./components').then(module => ({
+    default: module.SearchRetry,
+  }))
+);
+
+const SearchHistory = lazy(() =>
+  import('./components').then(module => ({
+    default: module.SearchHistory,
+  }))
+);
+
+const NotFoundSection = lazy(() =>
+  import('./components').then(module => ({
+    default: module.NotFoundSection,
+  }))
+);
 
 export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
   // State and hooks
@@ -46,6 +62,7 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
   const [hover, setHover] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  // We use this to track previous search queries
   const [lastDebouncedQuery, setLastDebouncedQuery] = useState('');
   const [historicalSearches, setHistoricalSearches] = useState<string[]>([]);
 
@@ -56,19 +73,18 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
     pagination,
     search,
     goToPage,
-    getSuggestions,
     getAnalytics,
+    // Keep retryLastSearch for error recovery
     retryLastSearch,
-  } = useRegionSearch(5);
+  } = useRegionSearch(5, { autoRetry: false });
 
-  const currentSuggestions = useMemo(
-    () => (searchQuery.length >= 2 ? getSuggestions(searchQuery, 5) : []),
-    [searchQuery, getSuggestions]
-  );
-
-  const elementRef = useRef<HTMLFormElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Store search function in a ref to avoid dependency issues
+  const searchRef = useRef(search);
+  const isOpenRef = useRef(isOpen);
 
   // Event handlers
   const handleMouseEnter = useCallback(() => setHover(true), []);
@@ -78,8 +94,9 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
   const handleResultNavigate = useCallback(
     (cityId: number) => {
       void navigate(`/weather/${cityId}`);
+      setOpen(false);
     },
-    [navigate]
+    [navigate, setOpen]
   );
 
   const handleInputChange = useCallback(
@@ -129,9 +146,15 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
     [goToPage]
   );
 
+  const handleRetrySearch = useCallback(() => {
+    if (isOpenRef.current) {
+      void retryLastSearch();
+    }
+  }, [retryLastSearch]);
+
   const handleClearHistoricalSearches = useCallback(() => {
     setHistoricalSearches([]);
-    clearHistoricalSearches();
+    (clearHistoricalSearches as () => void)();
   }, []);
 
   // Keyboard commands
@@ -157,20 +180,30 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
     []
   );
 
+  // Type for event listener hooks
+  type EventListenerHook = [() => void, () => void];
+
   // Event listeners setup
-  const [bindMouseEnterListener, unbindMouseEnterListener] = useEventListener({
-    target: elementRef,
+  const mouseEnterListener = useEventListener({
+    target: formRef,
     type: 'mouseenter',
     listener: handleMouseEnter,
   });
-
-  const [bindMouseLeaveListener, unbindMouseLeaveListener] = useEventListener({
-    target: elementRef,
+  const mouseLeaveListener = useEventListener({
+    target: formRef,
     type: 'mouseleave',
     listener: handleMouseLeave,
   });
+  const [bindMouseEnterListener, unbindMouseEnterListener] = (mouseEnterListener ?? [
+    () => {},
+    () => {},
+  ]) as EventListenerHook;
+  const [bindMouseLeaveListener, unbindMouseLeaveListener] = (mouseLeaveListener ?? [
+    () => {},
+    () => {},
+  ]) as EventListenerHook;
 
-  useClickOutside(elementRef, handleClickOutside);
+  useClickOutside(formRef as React.RefObject<Element>, handleClickOutside);
 
   // Effects
   useEffect(() => {
@@ -180,11 +213,36 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
       unbindMouseEnterListener();
       unbindMouseLeaveListener();
     };
-  }, [bindMouseEnterListener, bindMouseLeaveListener, unbindMouseEnterListener, unbindMouseLeaveListener]);
+  }, [
+    bindMouseEnterListener,
+    bindMouseLeaveListener,
+    unbindMouseEnterListener,
+    unbindMouseLeaveListener,
+  ]);
+
+  useEffect(() => {
+    searchRef.current = search;
+    isOpenRef.current = isOpen;
+  }, [search, isOpen]);
+
+  // Debounced search with race condition prevention
+  useEffect(() => {
+    if (debouncedQuery && isOpenRef.current) {
+      // Only search if modal is still open (prevent race conditions)
+      void searchRef.current(debouncedQuery);
+    }
+
+    // Reset selected index only when the actual query content changes
+    if (debouncedQuery !== lastDebouncedQuery) {
+      setSelectedIndex(-1);
+      setLastDebouncedQuery(debouncedQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery]);
 
   useEffect(() => {
     try {
-      const storedSearches = loadHistoricalSearches();
+      const storedSearches = (loadHistoricalSearches as () => string[])();
       if (Array.isArray(storedSearches)) {
         setHistoricalSearches(storedSearches);
       }
@@ -192,6 +250,15 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
       console.warn('Error loading historical searches:', error);
       setHistoricalSearches([]);
     }
+  }, []);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -325,23 +392,80 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
     }
   }, [selectedIndex, data.suggestions.length]);
 
+  // Save successful searches to history
+  useEffect(() => {
+    if (
+      debouncedQuery &&
+      data.suggestions.length > 0 &&
+      !loading.searching &&
+      !error
+    ) {
+      // Use a ref to track if component is still mounted
+      let isMounted = true;
+
+      setHistoricalSearches(currentSearches => {
+        if (!isMounted) return currentSearches;
+
+        const newHistoricalSearches = (
+          addToHistoricalSearches as (
+            query: string,
+            currentSearches: string[]
+          ) => string[]
+        )(debouncedQuery, currentSearches);
+
+        // Only save if there are actual changes
+        if (
+          newHistoricalSearches.length !== currentSearches.length ||
+          !newHistoricalSearches.every(
+            (search, index) => search === currentSearches[index]
+          )
+        ) {
+          // Save to localStorage asynchronously to avoid blocking
+          setTimeout(() => {
+            if (isMounted) {
+              (saveHistoricalSearches as (searches: string[]) => void)(
+                newHistoricalSearches
+              );
+            }
+          }, 0);
+          return newHistoricalSearches;
+        }
+        return currentSearches;
+      });
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [debouncedQuery, data.suggestions.length, loading.searching, error]);
+
+  // Update selectedIndex when suggestions change
+  useEffect(() => {
+    setSelectedIndex(prev => {
+      if (prev >= data.suggestions.length) {
+        return data.suggestions.length > 0 ? 0 : -1;
+      }
+      return prev;
+    });
+  }, [data.suggestions.length]);
+
   if (!isOpen) return null;
 
   return (
     <Suspense
       fallback={
         <div className='fixed top-0 left-0 w-screen h-screen flex justify-content-center align-items-center z-5 bg-black-alpha-50'>
-          <ProgressSpinner
-            style={{ width: '3rem', height: '3rem' }}
-            strokeWidth='5'
-          />
+          <OrbitSpinner size={1.5} />
         </div>
       }
     >
       <Dialog
         visible={isOpen}
         blockScroll
+        keepInViewport
         dismissableMask
+        modal
+        position='center'
         draggable={false}
         closable={false}
         className='search-modal'
@@ -355,11 +479,10 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
             onClear={handleClearSearch}
             onClose={onClose}
             inputRef={inputRef}
-            formRef={elementRef}
+            formRef={formRef}
             hover={hover}
             isFocused={isFocused}
             onFocus={handleInputFocus}
-            keyboardCommands={keyboardCommands}
           />
         }
         footer={
@@ -371,31 +494,86 @@ export const SearchModal = ({ isOpen, setOpen, onClose }: SearchModalProps) => {
         }
       >
         <div className='p-2' role='main'>
-          <SearchResults
-            results={data.suggestions}
-            countries={data.countries}
-            loading={loading}
-            pagination={pagination}
-            selectedIndex={selectedIndex}
-            searchTerm={debouncedQuery}
-            onResultSelect={handleResultNavigate}
-            onPageChange={handlePageChange}
-          />
-          <SearchSuggestions
-            query={searchQuery}
-            suggestions={currentSuggestions}
-            loading={loading}
-            onSelectSuggestion={handleSuggestionSelect}
-          />
+          {!loading.retrying &&
+            !loading.searching &&
+            !error &&
+            data.suggestions.length > 0 && (
+              <Suspense
+                fallback={
+                  <div className='flex w-full h-21rem justify-content-center align-items-center'>
+                    <OrbitSpinner />
+                  </div>
+                }
+              >
+                <SearchResults
+                  results={data.suggestions}
+                  countries={data.countries}
+                  loading={loading}
+                  pagination={pagination}
+                  selectedIndex={selectedIndex}
+                  searchTerm={debouncedQuery}
+                  onResultSelect={handleResultNavigate}
+                  onPageChange={handlePageChange}
+                />
+              </Suspense>
+            )}
+          {!loading.retrying &&
+            !loading.searching &&
+            !error &&
+            debouncedQuery &&
+            debouncedQuery.length >= 2 &&
+            data.suggestions.length === 0 && (
+              <Suspense
+                fallback={
+                  <div className='flex w-full h-21rem justify-content-center align-items-center'>
+                    <OrbitSpinner />
+                  </div>
+                }
+              >
+                <NotFoundSection query={debouncedQuery} />
+                <SearchHistory
+                  searches={historicalSearches}
+                  onSearchSelect={handleSuggestionSelect}
+                  onClearHistory={handleClearHistoricalSearches}
+                />
+              </Suspense>
+            )}
+          {loading.searching && (
+            <div className='h-full w-full justify-contents-center align-items-center flex flex-column'>
+              <RadarSpinner size={180} />
+            </div>
+          )}
+          {!loading.retrying && !loading.searching && error && debouncedQuery && (
+            <Suspense
+              fallback={
+                <div className='flex w-full h-9rem justify-content-center align-items-center'>
+                  <OrbitSpinner />
+                </div>
+              }
+            >
+              <SearchRetry
+                error={error}
+                handleRetrySearch={handleRetrySearch}
+                loading={loading}
+              />
+            </Suspense>
+          )}
           {!loading.searching &&
             !loading.retrying &&
-            !debouncedQuery &&
-            (!searchQuery || searchQuery.length < 2) && (
-              <SearchHistory
-                searches={historicalSearches}
-                onSearchSelect={handleSuggestionSelect}
-                onClearHistory={handleClearHistoricalSearches}
-              />
+            (!debouncedQuery || debouncedQuery.length < 2) && (
+              <Suspense
+                fallback={
+                  <div className='flex w-full h-21rem justify-content-center align-items-center'>
+                    <OrbitSpinner />
+                  </div>
+                }
+              >
+                <SearchHistory
+                  searches={historicalSearches}
+                  onSearchSelect={handleSuggestionSelect}
+                  onClearHistory={handleClearHistoricalSearches}
+                />
+              </Suspense>
             )}
         </div>
       </Dialog>

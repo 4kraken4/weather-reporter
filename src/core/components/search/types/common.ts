@@ -1,52 +1,62 @@
-export interface LoadingState {
+export type LoadingState = {
   searching: boolean;
   paginating: boolean;
   retrying: boolean;
   backgroundRefreshing: boolean;
-}
+};
 
-export interface SearchResult {
+export type SearchResult = {
   id: number;
   name: string;
   countryCode: string;
   state?: string;
-}
+};
 
-export interface CountryData {
+export type CountryData = {
   name: string;
   flagUrl: string;
-}
+};
 
-export interface PaginationInfo {
+export type PaginationInfo = {
   currentPage: number;
   totalPages: number;
   pageSize: number;
   totalItems: number;
-}
+};
 
-export interface SearchSuggestion {
+export type SearchSuggestion = {
   query: string;
   frequency?: number;
-}
+};
 
-export interface SearchAnalytics {
+export type SearchAnalytics = {
   totalSearches: number;
   averageResponseTime: number;
-}
+};
 
-export interface KeyIcon {
-  label: string;
-  icon: React.ReactNode;
-}
+export type ErrorType =
+  | 'VALIDATION'
+  | 'NETWORK'
+  | 'SERVER'
+  | 'TIMEOUT'
+  | 'RATE_LIMIT'
+  | 'ABORT';
 
-export interface KeyboardCommand {
-  commandLabel: string;
-  keyCombo: KeyIcon[];
-}
-
-// Error related types
-export interface SearchError {
+export type SearchError = {
+  type: ErrorType;
   message: string;
   retryable: boolean;
-  timestamp?: number;
-}
+  code?: string;
+  timestamp: number;
+  query?: string;
+};
+
+export type KeyIcon = {
+  label: string;
+  icon: React.ReactNode;
+};
+
+export type KeyboardCommand = {
+  commandLabel: string;
+  keyCombo: KeyIcon[];
+};
