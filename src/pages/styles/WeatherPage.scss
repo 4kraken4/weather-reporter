@@ -59,10 +59,15 @@
         flex-shrink: 0;
 
         .weather-icon-large {
-          font-size: 4rem;
+          width: 4rem;
+          height: 4rem;
           display: flex;
           align-items: center;
           justify-content: center;
+
+          > * {
+            font-size: 3rem;
+          }
         }
 
         .temperature-main {
@@ -283,16 +288,16 @@
 
   .loading-container {
     text-align: center;
-    padding: 2rem;
+    padding: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
 
     h3 {
       margin: 1rem 0 0.5rem 0;
       color: var(--primary-color);
-    }
-
-    p {
-      margin: 0;
-      color: var(--text-color-secondary);
     }
   }
 }

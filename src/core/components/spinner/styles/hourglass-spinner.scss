@@ -1,5 +1,5 @@
 .hgs-container {
-  --hgs-uib-size: 18px;
+  --hgs-uib-size: 2rem;
   --hgs-uib-color: var(--primary-color);
   --hgs-uib-speed: 1.75s;
   --hgs-uib-bg-opacity: 0.1;
@@ -64,8 +64,7 @@
     width: 100%;
     transform-origin: bottom right;
     border-radius: 0 0 calc(var(--hgs-uib-size) / 20) 0;
-    -webkit-animation: hgs-flow calc(var(--hgs-uib-speed) * 2) linear infinite
-      both;
+    -webkit-animation: hgs-flow calc(var(--hgs-uib-speed) * 2) linear infinite both;
     animation: hgs-flow calc(var(--hgs-uib-speed) * 2) linear infinite both;
     transition: background-color 0.3s ease;
   }

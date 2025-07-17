@@ -1,0 +1,76 @@
+// Document Search Spinner - Enhanced with beautiful animations
+// Uses CSS variables for easy customization
+
+// Default CSS Custom Properties
+:root {
+  --spinner-primary-color: var(--primary-color, #3b82f6);
+  --spinner-secondary-color: rgba(59, 130, 246, 0.2);
+  --spinner-size: 4rem;
+  --spinner-circle-size: 2.5rem;
+  --spinner-border-width: 3px;
+  --spinner-dot-size: 0.5rem;
+  --spinner-shadow-blur: 12px;
+  --spinner-shadow-color: rgba(59, 130, 246, 0.2);
+}
+
+.search-spinner {
+  position: relative;
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  will-change: transform, opacity;
+  perspective: 800px;
+
+  // Outer spinning circle
+  .spinner-circle {
+    width: var(--spinner-circle-size);
+    height: var(--spinner-circle-size);
+    border-radius: 50%;
+    border: var(--spinner-border-width) solid var(--spinner-primary-color);
+    border-top-color: transparent;
+    border-bottom-color: var(--spinner-secondary-color);
+    position: relative;
+    z-index: 2;
+    will-change: transform;
+    box-shadow: 0 0 var(--spinner-shadow-blur) var(--spinner-shadow-color);
+
+    // Pseudo-element for glow effect
+    &::after {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: -6px;
+      right: -6px;
+      bottom: -6px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(59, 130, 246, 0.05) 0%,
+        transparent 70%
+      );
+      z-index: -1;
+    }
+  }
+
+  // Inner pulsating dot
+  .spinner-dot {
+    position: absolute;
+    width: var(--spinner-dot-size);
+    height: var(--spinner-dot-size);
+    background-color: var(--spinner-primary-color);
+    border-radius: 50%;
+    z-index: 3;
+    will-change: transform;
+    box-shadow: 0 0 calc(var(--spinner-shadow-blur) / 2) var(--spinner-shadow-color);
+  }
+
+  // Add media query for smaller screens
+  @media (max-width: 768px) {
+    --spinner-size: 3.5rem;
+    --spinner-circle-size: 2.2rem;
+    --spinner-dot-size: 0.6rem;
+  }
+}

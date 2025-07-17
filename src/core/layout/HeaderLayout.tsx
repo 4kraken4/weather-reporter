@@ -1,11 +1,9 @@
+import SearchModal from '@core/components/search/SearchModal';
+import { useLayout } from '@core/hooks/useLayout';
 import { useTheme } from '@core/hooks/useTheme';
 import { Button } from 'primereact/button';
 import type { TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { useEffect } from 'react';
-
-import { useLayout } from '../hooks/useLayout';
-
-import SearchModal from '@/core/components/search/SearchModal';
 
 import './styles/header.scss';
 
@@ -21,6 +19,7 @@ type HeaderMenuItemType = {
   classList?: string;
   label?: string;
   iconClassList?: string;
+  visible?: boolean;
 };
 
 const Header = () => {
@@ -91,6 +90,7 @@ const Header = () => {
         e.preventDefault();
         handleSearchOpenModal();
       },
+      visible: uiState.headerButtons.search,
     },
     {
       key: 'github',
@@ -100,6 +100,7 @@ const Header = () => {
         e.preventDefault();
         window.open('https://github.com', '_blank');
       },
+      visible: uiState.headerButtons.github,
     },
     {
       key: 'theme-toggle',
@@ -109,6 +110,7 @@ const Header = () => {
       iconClassList: 'text-0 text-xs',
       tooltip: 'Toggle theme',
       onClick: handleThemeChange,
+      visible: uiState.headerButtons.theme,
     },
   ];
 
@@ -130,9 +132,11 @@ const Header = () => {
             </div>
             <div className='flex justify-content-between align-items-center border-round-sm'>
               <ul className='flex list-none m-0 p-0 gap-2 align-items-center'>
-                {headerMenuItems.map((item: HeaderMenuItemType) => (
-                  <li key={item.key}>{buttonMenuElement(item)}</li>
-                ))}
+                {headerMenuItems
+                  .filter(item => item.visible !== false)
+                  .map((item: HeaderMenuItemType) => (
+                    <li key={item.key}>{buttonMenuElement(item)}</li>
+                  ))}
               </ul>
             </div>
           </nav>

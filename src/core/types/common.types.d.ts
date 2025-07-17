@@ -92,6 +92,11 @@ export type LayoutState = {
   isHeaderVisible: boolean;
   isFooterVisible: boolean;
   isSearchModalOpen: boolean;
+  headerButtons: {
+    github: boolean;
+    search: boolean;
+    theme: boolean;
+  };
 };
 
 export type WeatherDataFetchErrorType = {
