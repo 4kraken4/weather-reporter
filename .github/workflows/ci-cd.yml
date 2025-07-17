@@ -5,6 +5,7 @@ on:
     branches: [master, develop]
   pull_request:
     branches: [master, develop]
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
   ci:
@@ -62,6 +63,9 @@ jobs:
         with:
           name: build
           path: dist/
+
+      - name: Remove old .vercel directory
+        run: rm -rf .vercel
 
       - name: Deploy to Vercel
         env:
