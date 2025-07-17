@@ -42,7 +42,7 @@ jobs:
   deploy:
     needs: ci
     runs-on: ubuntu-latest
-    if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/fix/vercel-directory-error') && github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
