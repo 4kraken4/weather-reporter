@@ -1,14 +1,18 @@
-import './styles/hourglassSpinner.scss';
+import './styles/hourglass-spinner.scss';
 
-import { type CSSProperties } from 'react';
+export type HourglassSpinnerProps = {
+  size?: number | string;
+};
 
-const HourglassSpinner = ({ style }: { style?: CSSProperties }) => {
+const HourglassSpinner = ({ size = 2 }: HourglassSpinnerProps) => {
+  const sizeRem = typeof size === 'number' ? `${size}rem` : size;
   return (
-    <div style={style}>
-      <div className='hgs-container'>
-        <div className='hgs-half' />
-        <div className='hgs-half' />
-      </div>
+    <div
+      className='hgs-container'
+      style={{ '--hgs-uib-size': sizeRem } as React.CSSProperties}
+    >
+      <div className='hgs-half' />
+      <div className='hgs-half' />
     </div>
   );
 };

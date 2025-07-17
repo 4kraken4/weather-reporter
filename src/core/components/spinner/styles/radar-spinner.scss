@@ -1,0 +1,221 @@
+// Variables for customization
+.location-search-spinner {
+  --lss-size: 80px;
+  --lss-color-primary: var(--primary-500);
+  --lss-color-secondary: var(--primary-700);
+  --lss-color-accent: var(--primary-400);
+  --lss-color-highlight: var(--primary-500);
+  --lss-color-bg: var(--surface-100);
+  --lss-speed: 1;
+
+  position: relative;
+  width: var(--lss-size);
+  height: var(--lss-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  // Base circle - main container
+  .compass-base {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--lss-color-bg);
+    border: 1px solid var(--lss-color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0px 3px 5px rgba(0, 0, 0, 0.02),
+      0px 0px 2px rgba(0, 0, 0, 0.05),
+      0px 1px 4px rgba(0, 0, 0, 0.08);
+    // Cardinal direction markers
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      background-color: var(--lss-color-highlight);
+      opacity: 0.1;
+    }
+
+    &::before {
+      width: 1px;
+      height: 100%;
+    }
+
+    &::after {
+      width: 100%;
+      height: 1px;
+    }
+  }
+
+  // Center dot
+  .center-dot {
+    position: absolute;
+    width: calc(var(--lss-size) * 0.1);
+    height: calc(var(--lss-size) * 0.1);
+    background-color: var(--lss-color-primary);
+    border-radius: 50%;
+    z-index: 5;
+    box-shadow:
+      0px 3px 5px rgba(0, 0, 0, 0.02),
+      0px 0px 2px rgba(0, 0, 0, 0.05),
+      0px 1px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  // Compass needle
+  .compass-needle {
+    position: absolute;
+    width: calc(var(--lss-size) * 0.04);
+    height: calc(var(--lss-size) * 0.5);
+    background: linear-gradient(
+      to bottom,
+      var(--lss-color-accent) 0%,
+      var(--lss-color-primary) 100%
+    );
+    transform-origin: center center;
+    z-index: 3;
+    border-radius: calc(var(--lss-size) * 0.02);
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: calc(var(--lss-size) * 0.1);
+      height: calc(var(--lss-size) * 0.1);
+      background-color: var(--lss-color-accent);
+      border-radius: 50%;
+      top: -5%;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow:
+        0px 3px 5px rgba(0, 0, 0, 0.02),
+        0px 0px 2px rgba(0, 0, 0, 0.05),
+        0px 1px 4px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  // Radar scanning effect
+  .radar-scan {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+    background: radial-gradient(
+      circle at center,
+      transparent 20%,
+      var(--lss-color-accent) 80%,
+      var(--lss-color-highlight) 50%,
+      transparent 70%
+    );
+    opacity: 0.2;
+    transform-origin: center center;
+    z-index: 2;
+  }
+
+  // Pulsing rings
+  .pulse-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid var(--lss-color-highlight);
+    box-shadow:
+      0px 3px 5px rgba(0, 0, 0, 0.02),
+      0px 0px 2px rgba(0, 0, 0, 0.05),
+      0px 1px 4px rgba(0, 0, 0, 0.08);
+    opacity: 0;
+    z-index: 1;
+  }
+
+  // Rotating dots - simulating detected locations
+  .radar-dot {
+    position: absolute;
+    width: calc(var(--lss-size) * 0.035);
+    height: calc(var(--lss-size) * 0.035);
+    background-color: var(--lss-color-highlight);
+    border-radius: 50%;
+    box-shadow: 0 0 3px var(--lss-color-highlight);
+    z-index: 2;
+  }
+
+  // Coordinate grid
+  .coordinate-grid {
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    border: 1px dashed rgba(224, 224, 224, 0.15);
+    z-index: 0;
+  }
+
+  // Inner coordinate grid
+  .coordinate-grid-inner {
+    position: absolute;
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    border: 1px dashed rgba(224, 224, 224, 0.15);
+    z-index: 0;
+  }
+
+  // Screen reader text for accessibility
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
+
+// Fallback keyframes animations
+@keyframes radar-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-expand {
+  0% {
+    width: 30%;
+    height: 30%;
+    opacity: 0.7;
+  }
+  100% {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes dot-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes needle-wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+}

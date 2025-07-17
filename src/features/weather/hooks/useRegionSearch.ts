@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
 import type {
   Countries,
   RegionResponseType,
   SearchOptions,
   Suggestion,
-} from '@/core/types/common.types';
-import { RegionService } from '@/features/weather/services/regionService';
+} from '@core/types/common.types';
+import { RegionService } from '@features/weather/services/regionService';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // Enhanced types for robust state management
 type LoadingState = {
@@ -71,6 +70,7 @@ type CachedSearchResult = {
 type SearchConfig = {
   debounceDelay: number;
   maxCacheSize: number;
+  autoRetry?: boolean;
   cacheTTL: number;
   maxRetries: number;
   retryDelay: number;
@@ -91,7 +91,7 @@ const DEFAULT_CONFIG: SearchConfig = {
   maxCacheSize: 100,
   cacheTTL: 5 * 60 * 1000, // 5 minutes
   maxRetries: 3,
-  retryDelay: 1000,
+  retryDelay: 3000,
   rateLimit: {
     maxRequests: 20,
     timeWindow: 60 * 1000, // 1 minute
@@ -735,6 +735,7 @@ export const useRegionSearch = (
 
         // Auto-retry for retryable errors
         if (
+          searchConfig.autoRetry !== false &&
           searchError.retryable &&
           retryCountRef.current < searchConfig.maxRetries
         ) {
@@ -866,7 +867,7 @@ export const useRegionSearch = (
     const avgResponseTime =
       ANALYTICS_TRACKER.responseTimesHistory.length > 0
         ? ANALYTICS_TRACKER.responseTimesHistory.reduce((a, b) => a + b, 0) /
-        ANALYTICS_TRACKER.responseTimesHistory.length // eslint-disable-line prettier/prettier
+          ANALYTICS_TRACKER.responseTimesHistory.length
         : 0;
 
     return {
@@ -923,7 +924,7 @@ export const regionSearchUtils = {
     averageResponseTime:
       ANALYTICS_TRACKER.responseTimesHistory.length > 0
         ? ANALYTICS_TRACKER.responseTimesHistory.reduce((a, b) => a + b, 0) /
-        ANALYTICS_TRACKER.responseTimesHistory.length // eslint-disable-line prettier/prettier
+          ANALYTICS_TRACKER.responseTimesHistory.length
         : 0,
     peakUsageHours: Array.from(ANALYTICS_TRACKER.peakUsageHours),
   }),

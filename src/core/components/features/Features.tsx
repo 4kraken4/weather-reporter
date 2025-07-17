@@ -1,4 +1,5 @@
-import { motion, useInView } from 'framer-motion';
+import MagicCard from '@core/components/magic-card';
+import { motion, useInView } from 'motion/react';
 import { memo, useRef } from 'react';
 import {
   FaBell,
@@ -9,7 +10,6 @@ import {
 } from 'react-icons/fa';
 import { WiThermometer } from 'react-icons/wi';
 
-import MagicCard from '../magic-card/MagicCard';
 import './styles/features.scss';
 
 type FeatureData = {

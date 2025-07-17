@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { Button } from 'primereact/button';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './styles/hero.scss';
@@ -70,7 +70,7 @@ const HeroComponent = memo(({ onGetStarted, onLearnMore }: HeroProps) => {
   const handleScrollToNext = useCallback(() => {
     // Use cached reference or find and cache it
     featuresElementRef.current ??= document.querySelector(
-      '[data-section="features"]'
+      '[data-section="features__container"]'
     );
 
     const featuresSection = featuresElementRef.current;
