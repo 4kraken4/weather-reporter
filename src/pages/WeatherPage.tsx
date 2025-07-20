@@ -2,7 +2,6 @@ import { HourglassSpinner } from '@core/components/spinner';
 import { HumidityIndicator } from '@features/weather/components/humidity-indicator/HumidityIndicator';
 import { TemperatureIndicator } from '@features/weather/components/temp-indicator/TemperatureIndicator';
 import { WindDirectionIndicator } from '@features/weather/components/wind-direction-indicator/WindDirectionIndicator';
-import { useWeatherData } from '@features/weather/hooks/usetWeather';
 import { motion } from 'motion/react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -35,6 +34,8 @@ import {
   WiThunderstorm,
 } from 'react-icons/wi';
 import { useNavigate, useParams } from 'react-router-dom';
+
+import { useWeatherData } from '@/features/weather/hooks/useWeather';
 
 import './styles/WeatherPage.scss';
 

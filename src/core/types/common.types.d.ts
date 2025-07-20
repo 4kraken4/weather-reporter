@@ -119,3 +119,20 @@ export type SearchOptions = {
   page?: number;
   pageSize?: number;
 };
+
+export type CachedSearchResult = {
+  data: {
+    suggestions: Suggestion[];
+    countries: Countries;
+  };
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    pageSize: number;
+  };
+  timestamp: number;
+  query: string;
+  accessCount: number;
+  lastAccessed: number;
+};

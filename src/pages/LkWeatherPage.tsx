@@ -11,7 +11,7 @@ import {
 
 import { useMessage } from '@/core/hooks/useMessage';
 import { useTheme } from '@/core/hooks/useTheme';
-import { useWeatherData } from '@/features/weather/hooks/usetWeather';
+import { useWeatherData } from '@/features/weather/hooks/useWeather';
 
 // Lazy load heavy components
 const LkMap = lazy(() => import('@/features/weather/components/map-lk/LkMap'));
