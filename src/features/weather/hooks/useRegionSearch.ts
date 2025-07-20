@@ -441,6 +441,14 @@ export const useRegionSearch = (
       } catch (error) {
         let searchError: SearchError;
 
+        if (
+          typeof window !== 'undefined' &&
+          window.console &&
+          process.env.NODE_ENV !== 'production'
+        ) {
+          console.error('useRegionSearch error:', error);
+        }
+
         if (error instanceof Error) {
           if (error.name === 'AbortError') {
             return;
@@ -484,7 +492,13 @@ export const useRegionSearch = (
         setState(prev => ({
           ...prev,
           loading: createLoadingState(),
-          error: searchError,
+          error: {
+            ...searchError,
+            diagnostics:
+              process.env.NODE_ENV !== 'production'
+                ? { raw: error, time: new Date().toISOString() }
+                : undefined,
+          },
         }));
 
         // Auto-retry for retryable errors
