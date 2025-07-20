@@ -40,18 +40,34 @@ export function useSearchCache({
     }
   };
 
+  // Evict multiple if needed, handle corruption
   const evictLRU = () => {
-    if (cacheRef.current.size <= maxCacheSize) return;
-    let oldestKey = '';
-    let oldestTime = Date.now();
-    for (const [key, result] of cacheRef.current.entries()) {
-      if (result.lastAccessed < oldestTime) {
-        oldestTime = result.lastAccessed;
-        oldestKey = key;
+    try {
+      while (cacheRef.current.size > maxCacheSize) {
+        let oldestKey = '';
+        let oldestTime = Date.now();
+        for (const [key, result] of cacheRef.current.entries()) {
+          if (!result || typeof result.lastAccessed !== 'number') {
+            // Corrupt entry, remove it
+            cacheRef.current.delete(key);
+            continue;
+          }
+          if (result.lastAccessed < oldestTime) {
+            oldestTime = result.lastAccessed;
+            oldestKey = key;
+          }
+        }
+        if (oldestKey) {
+          cacheRef.current.delete(oldestKey);
+        } else {
+          // If no valid oldestKey found, break to avoid infinite loop
+          break;
+        }
       }
-    }
-    if (oldestKey) {
-      cacheRef.current.delete(oldestKey);
+      persist();
+    } catch (err) {
+      console.error('Cache eviction error:', err);
+      cacheRef.current.clear();
       persist();
     }
   };
