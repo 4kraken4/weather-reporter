@@ -251,7 +251,10 @@ export const useRegionSearch = (
       const isBackground = options?.isBackground ?? false;
 
       const requestId: string = options?.requestId ?? uuidv4();
-      currentRequestIdRef.current = requestId;
+      // Only update currentRequestIdRef if not a background or retry request
+      if (!options?.isBackground && !options?.isRetry) {
+        currentRequestIdRef.current = requestId;
+      }
 
       // Validation
       const validation = validateSearchInput(query);
@@ -358,15 +361,30 @@ export const useRegionSearch = (
 
       try {
         const sanitizedQuery = sanitizeInput(query);
-        const response: RegionResponseType = await RegionService.search(
-          sanitizedQuery,
-          {
+
+        // Only process response if requestId matches latest
+        let response: RegionResponseType | undefined;
+        try {
+          response = await RegionService.search(sanitizedQuery, {
             page,
             pageSize,
             signal: abortControllerRef.current.signal,
             ...options,
+          });
+        } catch (err) {
+          // If aborted, do not update state
+          if (err instanceof Error && err.name === 'AbortError') {
+            if (currentRequestIdRef.current !== requestId) {
+              // Ignore aborted request from previous search
+              return;
+            }
           }
-        );
+          throw err;
+        }
+        // Ignore stale responses
+        if (currentRequestIdRef.current !== requestId && !isBackground) {
+          return;
+        }
 
         const endTime = Date.now();
         const responseTime = endTime - startTime;
@@ -518,19 +536,22 @@ export const useRegionSearch = (
           0,
           inFlightSearchingCountRef.current - 1
         );
-        if (!isBackground && (!options?.page || options.page === 1)) {
-          setState(prev => ({
-            ...prev,
-            loading: {
-              ...prev.loading,
-              searching: inFlightSearchingCountRef.current > 0,
-            },
-          }));
-        } else if (currentRequestIdRef.current === requestId) {
-          setState(prev => ({
-            ...prev,
-            loading: createLoadingState(),
-          }));
+        // Only update state if this is the latest request
+        if (currentRequestIdRef.current === requestId) {
+          if (!isBackground && (!options?.page || options.page === 1)) {
+            setState(prev => ({
+              ...prev,
+              loading: {
+                ...prev.loading,
+                searching: inFlightSearchingCountRef.current > 0,
+              },
+            }));
+          } else {
+            setState(prev => ({
+              ...prev,
+              loading: createLoadingState(),
+            }));
+          }
         }
       }
     },
