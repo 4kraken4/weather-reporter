@@ -26,7 +26,9 @@ export type PaginationInfo = {
 
 export type SearchSuggestion = {
   query: string;
-  frequency?: number;
+  frequency: number;
+  lastUsed: number;
+  source: 'history' | 'popular' | 'suggested';
 };
 
 export type SearchAnalytics = {

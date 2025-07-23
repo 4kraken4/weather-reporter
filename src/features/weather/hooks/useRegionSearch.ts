@@ -1,4 +1,6 @@
+// Refactored useRegionSearch.ts
 import type {
+  CachedSearchResult,
   Countries,
   RegionResponseType,
   SearchOptions,
@@ -6,67 +8,21 @@ import type {
 } from '@core/types/common.types';
 import { RegionService } from '@features/weather/services/regionService';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
-// Enhanced types for robust state management
-type LoadingState = {
-  searching: boolean;
-  paginating: boolean;
-  retrying: boolean;
-  backgroundRefreshing: boolean;
-};
+import { sanitizeInput, validateSearchInput } from './searchValidation';
+import { useAnalytics } from './useAnalytics';
+import { useRateLimiter } from './useRateLimiter';
+import { useSearchCache } from './useSearchCache';
 
-type ErrorType =
-  | 'VALIDATION'
-  | 'NETWORK'
-  | 'SERVER'
-  | 'TIMEOUT'
-  | 'RATE_LIMIT'
-  | 'ABORT';
+import type {
+  ErrorType,
+  LoadingState,
+  SearchError,
+  SearchSuggestion,
+} from '@/core/components/search/types/common';
 
-type SearchError = {
-  type: ErrorType;
-  message: string;
-  retryable: boolean;
-  code?: string;
-  timestamp: number;
-  query?: string;
-};
-
-type SearchSuggestion = {
-  query: string;
-  frequency: number;
-  lastUsed: number;
-  source: 'history' | 'popular' | 'suggested';
-};
-
-// @ts-expect-error Unused type prepared for future analytics implementation
-type _SearchAnalytics = {
-  searchCount: number;
-  errorCount: number;
-  cacheHitCount: number;
-  averageResponseTime: number;
-  popularQueries: SearchSuggestion[];
-  errorsByType: Record<ErrorType, number>;
-  peakUsageHours: number[];
-};
-
-type CachedSearchResult = {
-  data: {
-    suggestions: Suggestion[];
-    countries: Countries;
-  };
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    pageSize: number;
-  };
-  timestamp: number;
-  query: string;
-  accessCount: number;
-  lastAccessed: number;
-};
-
+// Types
 type SearchConfig = {
   debounceDelay: number;
   maxCacheSize: number;
@@ -80,21 +36,15 @@ type SearchConfig = {
   };
 };
 
-type RateLimitEntry = {
-  timestamp: number;
-  count: number;
-};
-
-// Configuration with industry-standard defaults
 const DEFAULT_CONFIG: SearchConfig = {
   debounceDelay: 300,
   maxCacheSize: 100,
-  cacheTTL: 5 * 60 * 1000, // 5 minutes
+  cacheTTL: 5 * 60 * 1000,
   maxRetries: 3,
   retryDelay: 3000,
   rateLimit: {
     maxRequests: 20,
-    timeWindow: 60 * 1000, // 1 minute
+    timeWindow: 60 * 1000,
   },
 };
 
@@ -135,193 +85,14 @@ type UseRegionSearchReturn = UseRegionSearchState & {
   };
 };
 
-// Global cache and utilities
-const SEARCH_CACHE = new Map<string, CachedSearchResult>();
-const RATE_LIMIT_TRACKER = new Map<string, RateLimitEntry[]>();
-const IN_FLIGHT_REQUESTS = new Set<string>();
-
-// Global search suggestions tracker
+// Suggestion tracker (in-memory, not persisted)
 const SEARCH_SUGGESTIONS = new Map<string, SearchSuggestion>();
-const ANALYTICS_TRACKER = {
-  totalSearches: 0,
-  errorsByType: {} as Record<ErrorType, number>,
-  responseTimesHistory: [] as number[],
-  peakUsageHours: new Array(24).fill(0), // Track usage by hour of day
-};
 
-// Enhanced utility functions
 const createCacheKey = (query: string, page: number, pageSize: number): string => {
   const normalizedQuery = query.toLowerCase().trim().replace(/\s+/g, '_');
   return `${normalizedQuery}_${page}_${pageSize}`;
 };
 
-const isRateLimited = (identifier: string, config: SearchConfig): boolean => {
-  const now = Date.now();
-  const requests = RATE_LIMIT_TRACKER.get(identifier) ?? [];
-
-  // Clean old entries
-  const validRequests = requests.filter(
-    entry => now - entry.timestamp < config.rateLimit.timeWindow
-  );
-
-  RATE_LIMIT_TRACKER.set(identifier, validRequests);
-
-  return validRequests.length >= config.rateLimit.maxRequests;
-};
-
-const addRateLimitEntry = (identifier: string): void => {
-  const now = Date.now();
-  const requests = RATE_LIMIT_TRACKER.get(identifier) ?? [];
-  requests.push({ timestamp: now, count: 1 });
-  RATE_LIMIT_TRACKER.set(identifier, requests);
-};
-
-const evictLRUCache = (maxSize: number): void => {
-  if (SEARCH_CACHE.size <= maxSize) return;
-
-  let oldestKey = '';
-  let oldestTime = Date.now();
-
-  const entries = Array.from(SEARCH_CACHE.entries());
-  for (const [key, result] of entries) {
-    if (result.lastAccessed < oldestTime) {
-      oldestTime = result.lastAccessed;
-      oldestKey = key;
-    }
-  }
-
-  if (oldestKey) {
-    SEARCH_CACHE.delete(oldestKey);
-  }
-};
-
-const setCacheData = (key: string, data: CachedSearchResult): void => {
-  evictLRUCache(DEFAULT_CONFIG.maxCacheSize - 1);
-  SEARCH_CACHE.set(key, { ...data, lastAccessed: Date.now() });
-};
-
-const getCacheData = (key: string): CachedSearchResult | null => {
-  const data = SEARCH_CACHE.get(key);
-  if (!data) return null;
-
-  // Check if expired
-  const now = Date.now();
-  if (now - data.timestamp > DEFAULT_CONFIG.cacheTTL) {
-    SEARCH_CACHE.delete(key);
-    return null;
-  }
-
-  // Update access stats
-  data.lastAccessed = now;
-  data.accessCount += 1;
-  SEARCH_CACHE.set(key, data);
-
-  return data;
-};
-
-// Enhanced input validation
-const validateSearchInput = (
-  input: string
-): { isValid: boolean; reason?: string } => {
-  const trimmed = input.trim();
-
-  if (trimmed.length === 0) {
-    return {
-      isValid: false,
-      reason: 'Search query cannot be empty',
-    };
-  }
-
-  if (trimmed.length < 2) {
-    return {
-      isValid: false,
-      reason: 'Search query must be at least 2 characters long',
-    };
-  }
-
-  if (trimmed.length > 100) {
-    return {
-      isValid: false,
-      reason: 'Search query too long (max 100 characters)',
-    };
-  }
-
-  // Enhanced meaningless patterns
-  const meaninglessPatterns = [
-    /^[0-9]+$/, // Only numbers
-    /^[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?]+$/, // Only special characters
-    /^(.)\1{2,}$/, // Repeated characters (aaa, 111, etc.)
-    /^[a-zA-Z]$/, // Single letter
-    /^\s+$/, // Only whitespace
-    /^[^a-zA-Z0-9\s]*$/, // No alphanumeric characters
-  ];
-
-  for (const pattern of meaninglessPatterns) {
-    if (pattern.test(trimmed)) {
-      return {
-        isValid: false,
-        reason: 'Invalid search pattern',
-      };
-    }
-  }
-
-  // Enhanced spam patterns
-  const spamPatterns = [
-    /^(test|asdf|qwer|zxcv|hjkl|lorem|ipsum|dummy|sample|example)$/i,
-    /^(abc|xyz|123|000|999|null|undefined|nan)$/i,
-    /^(.)\1*$/, // Single character repeated
-    /^\d{10,}$/, // Long number sequences
-  ];
-
-  for (const pattern of spamPatterns) {
-    if (pattern.test(trimmed)) {
-      return {
-        isValid: false,
-        reason: 'Please enter a valid location name',
-      };
-    }
-  }
-
-  // Must contain at least one letter
-  if (!/[a-zA-Z]/.test(trimmed)) {
-    return {
-      isValid: false,
-      reason: 'Search must contain at least one letter',
-    };
-  }
-
-  // XSS protection - basic check for script tags and suspicious patterns
-  const xssPatterns = [
-    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-    /javascript:/gi,
-    /on\w+\s*=/gi,
-    /<iframe\b/gi,
-    /<object\b/gi,
-    /<embed\b/gi,
-  ];
-
-  for (const pattern of xssPatterns) {
-    if (pattern.test(trimmed)) {
-      return {
-        isValid: false,
-        reason: 'Invalid characters detected',
-      };
-    }
-  }
-
-  return { isValid: true };
-};
-
-// Enhanced input sanitization
-const sanitizeInput = (input: string): string => {
-  return input
-    .replace(/[<>'"&]/g, '') // Remove potential XSS characters
-    .replace(/^[^\w\s]+|[^\w\s]+$/g, '') // Remove leading/trailing special chars
-    .replace(/\s+/g, ' ') // Normalize whitespace
-    .trim();
-};
-
-// Enhanced error creation
 const createSearchError = (
   type: ErrorType,
   message: string,
@@ -337,7 +108,6 @@ const createSearchError = (
   query,
 });
 
-// Helper function to create complete loading state
 const createLoadingState = (overrides: Partial<LoadingState> = {}): LoadingState => ({
   searching: false,
   paginating: false,
@@ -351,6 +121,28 @@ export const useRegionSearch = (
   config: Partial<SearchConfig> = {}
 ): UseRegionSearchReturn => {
   const searchConfig = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config]);
+  const {
+    setCache,
+    getCache,
+    clearCache: clearCacheStore,
+  } = useSearchCache({
+    maxCacheSize: searchConfig.maxCacheSize,
+    cacheTTL: searchConfig.cacheTTL,
+  });
+  const {
+    isRateLimited,
+    addRequest,
+    clear: clearRateLimit,
+  } = useRateLimiter({
+    maxRequests: searchConfig.rateLimit.maxRequests,
+    timeWindow: searchConfig.rateLimit.timeWindow,
+  });
+  const {
+    trackSearch,
+    trackError,
+    getAnalytics: getAnalyticsData,
+    clear: clearAnalytics,
+  } = useAnalytics();
 
   const [state, setState] = useState<UseRegionSearchState>({
     data: {
@@ -382,7 +174,10 @@ export const useRegionSearch = (
   const retryCountRef = useRef<number>(0);
   const pageSizeRef = useRef<number>(initialPageSize);
 
-  // Update refs when values change
+  // Track the current request ID for debugging
+  const currentRequestIdRef = useRef<string>('');
+  const inFlightSearchingCountRef = useRef(0);
+
   useEffect(() => {
     retryCountRef.current = retryCount;
   }, [retryCount]);
@@ -391,17 +186,7 @@ export const useRegionSearch = (
     pageSizeRef.current = state.pagination.pageSize;
   }, [state.pagination.pageSize]);
 
-  const searchMetricsRef = useRef<{
-    totalSearches: number;
-    cacheHits: number;
-    responseTimes: number[];
-  }>({
-    totalSearches: 0,
-    cacheHits: 0,
-    responseTimes: [],
-  });
-
-  // Utility functions for suggestions and analytics
+  // Utility functions for suggestions
   const updateSearchSuggestion = (query: string): void => {
     const normalized = query.toLowerCase().trim();
     const existing = SEARCH_SUGGESTIONS.get(normalized);
@@ -441,7 +226,7 @@ export const useRegionSearch = (
       .sort((a, b) => {
         // Sort by frequency and recency
         const scoreA =
-          a.frequency + (Date.now() - a.lastUsed) / (1000 * 60 * 60 * 24); // Decay over days
+          a.frequency + (Date.now() - a.lastUsed) / (1000 * 60 * 60 * 24);
         const scoreB =
           b.frequency + (Date.now() - b.lastUsed) / (1000 * 60 * 60 * 24);
         return scoreB - scoreA;
@@ -451,45 +236,25 @@ export const useRegionSearch = (
     return suggestions;
   };
 
-  const updateAnalytics = (
-    error?: SearchError,
-    responseTime?: number,
-    incrementTotal = true
-  ): void => {
-    // Only increment total searches for actual API calls, not validation/rate limit errors
-    if (incrementTotal) {
-      ANALYTICS_TRACKER.totalSearches += 1;
-    }
-
-    if (error) {
-      ANALYTICS_TRACKER.errorsByType[error.type] =
-        (ANALYTICS_TRACKER.errorsByType[error.type] || 0) + 1;
-    }
-
-    if (responseTime) {
-      ANALYTICS_TRACKER.responseTimesHistory.push(responseTime);
-      // Keep only last 100 response times
-      if (ANALYTICS_TRACKER.responseTimesHistory.length > 100) {
-        ANALYTICS_TRACKER.responseTimesHistory.shift();
-      }
-    }
-
-    // Only track usage by hour for actual searches, not validation errors
-    if (incrementTotal) {
-      const hour = new Date().getHours();
-      ANALYTICS_TRACKER.peakUsageHours[hour] += 1;
-    }
-  };
-
   // Enhanced search function with caching, debouncing, and retry logic
   const performSearch = useCallback(
     async (
       query: string,
-      options?: SearchOptions & { isRetry?: boolean; isBackground?: boolean }
+      options?: SearchOptions & {
+        isRetry?: boolean;
+        isBackground?: boolean;
+        requestId?: string;
+      }
     ): Promise<void> => {
       const startTime = Date.now();
       const isRetry = options?.isRetry ?? false;
       const isBackground = options?.isBackground ?? false;
+
+      const requestId: string = options?.requestId ?? uuidv4();
+      // Only update currentRequestIdRef if not a background or retry request
+      if (!options?.isBackground && !options?.isRetry) {
+        currentRequestIdRef.current = requestId;
+      }
 
       // Validation
       const validation = validateSearchInput(query);
@@ -498,8 +263,6 @@ export const useRegionSearch = (
           'VALIDATION',
           validation.reason ?? 'Invalid search query'
         );
-        // Note: Don't track analytics for validation errors as these aren't real searches
-
         setState(prev => ({
           ...prev,
           data: { suggestions: [], countries: {} },
@@ -516,15 +279,13 @@ export const useRegionSearch = (
       }
 
       // Rate limiting check
-      const rateLimitKey = 'search'; // Could be user-specific in real app
-      if (!isRetry && isRateLimited(rateLimitKey, searchConfig)) {
+      const rateLimitKey = 'search';
+      if (!isRetry && isRateLimited(rateLimitKey)) {
         const rateLimitError = createSearchError(
           'RATE_LIMIT',
           'Too many search requests. Please wait a moment.',
           true
         );
-        // Note: Don't track analytics for rate limit errors as these aren't actual API calls
-
         setState(prev => ({
           ...prev,
           loading: createLoadingState(),
@@ -539,82 +300,97 @@ export const useRegionSearch = (
 
       // Check cache first
       if (!isRetry) {
-        const cached = getCacheData(cacheKey);
+        const cached = getCache(cacheKey);
         if (cached) {
           setState(prev => ({
             ...prev,
-            data: cached.data,
+            data: {
+              suggestions: cached.data.suggestions,
+              countries: cached.data.countries,
+            },
             loading: createLoadingState(),
             error: null,
             pagination: cached.pagination,
           }));
 
           // Update metrics
-          searchMetricsRef.current.cacheHits += 1;
-          searchMetricsRef.current.totalSearches += 1;
-
+          trackSearch();
           // If cached data is older than 2 minutes, refresh in background
           const cacheAge = Date.now() - cached.timestamp;
           if (cacheAge > 2 * 60 * 1000 && !isBackground) {
             setTimeout(() => {
               void performSearch(query, { ...options, isBackground: true });
-            }, 100); // Small delay to not block UI
+            }, 100);
           }
-
           return;
         }
       }
 
       // Prevent duplicate requests
-      if (IN_FLIGHT_REQUESTS.has(cacheKey)) {
-        return;
-      }
+      if (inFlightSearchingCountRef.current > 0 && !isRetry) return;
 
       // Set loading state
-      setState(prev => ({
-        ...prev,
-        loading: createLoadingState({
-          searching: !isBackground && (!options?.page || options.page === 1),
-          paginating: !isBackground && Boolean(options?.page && options.page > 1),
-          retrying: isRetry,
-          backgroundRefreshing: isBackground,
-        }),
-        error: null,
-      }));
+      if (!isBackground && (!options?.page || options.page === 1)) {
+        inFlightSearchingCountRef.current += 1;
+        setState(prev => ({
+          ...prev,
+          loading: {
+            ...createLoadingState(),
+            searching: true,
+          },
+          error: null,
+        }));
+      } else {
+        setState(prev => ({
+          ...prev,
+          loading: createLoadingState({
+            paginating: !isBackground && Boolean(options?.page && options.page > 1),
+            retrying: isRetry,
+            backgroundRefreshing: isBackground,
+          }),
+          error: null,
+        }));
+      }
 
       // Add rate limit entry
-      if (!isRetry) {
-        addRateLimitEntry(rateLimitKey);
-      }
+      if (!isRetry) addRequest(rateLimitKey);
 
-      // Cancel previous request if exists
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-
-      // Create new abort controller
+      // Abort previous request if exists
+      if (abortControllerRef.current) abortControllerRef.current.abort();
       abortControllerRef.current = new AbortController();
-      IN_FLIGHT_REQUESTS.add(cacheKey);
 
       try {
         const sanitizedQuery = sanitizeInput(query);
-        const response: RegionResponseType = await RegionService.search(
-          sanitizedQuery,
-          {
+
+        // Only process response if requestId matches latest
+        let response: RegionResponseType | undefined;
+        try {
+          response = await RegionService.search(sanitizedQuery, {
             page,
             pageSize,
             signal: abortControllerRef.current.signal,
             ...options,
+          });
+        } catch (err) {
+          // If aborted, do not update state
+          if (err instanceof Error && err.name === 'AbortError') {
+            if (currentRequestIdRef.current !== requestId) {
+              // Ignore aborted request from previous search
+              return;
+            }
           }
-        );
+          throw err;
+        }
+        // Ignore stale responses
+        if (currentRequestIdRef.current !== requestId && !isBackground) {
+          return;
+        }
 
         const endTime = Date.now();
         const responseTime = endTime - startTime;
 
-        // Update metrics and analytics
-        searchMetricsRef.current.totalSearches += 1;
-        searchMetricsRef.current.responseTimes.push(responseTime);
-        updateAnalytics(undefined, responseTime);
+        // Update analytics
+        trackSearch(responseTime);
 
         // Update search suggestions
         if (!isBackground) {
@@ -622,7 +398,7 @@ export const useRegionSearch = (
         }
 
         if (response?.suggestions) {
-          const resultData = {
+          const resultData: CachedSearchResult = {
             data: {
               suggestions: response.suggestions,
               countries: response.countries,
@@ -640,33 +416,31 @@ export const useRegionSearch = (
           };
 
           // Cache the result
-          setCacheData(cacheKey, resultData);
+          setCache(cacheKey, resultData);
 
           setState(prev => ({
             ...prev,
-            data: resultData.data,
+            data: {
+              suggestions: resultData.data.suggestions,
+              countries: resultData.data.countries,
+            },
             loading: createLoadingState(),
+            error: null,
             pagination: resultData.pagination,
             searchHistory: (() => {
-              if (isBackground) return prev.searchHistory; // Don't update history for background refreshes
+              if (isBackground) return prev.searchHistory;
               if (prev.searchHistory.includes(sanitizedQuery)) {
                 return prev.searchHistory;
               }
-              return [sanitizedQuery, ...prev.searchHistory.slice(0, 9)]; // Keep last 10 searches
+              return [sanitizedQuery, ...prev.searchHistory.slice(0, 9)];
             })(),
             metrics: {
-              totalSearches: searchMetricsRef.current.totalSearches,
-              cacheHitRate:
-                (searchMetricsRef.current.cacheHits /
-                  searchMetricsRef.current.totalSearches) *
-                100,
-              averageResponseTime:
-                searchMetricsRef.current.responseTimes.reduce((a, b) => a + b, 0) /
-                searchMetricsRef.current.responseTimes.length,
+              totalSearches: getAnalyticsData().totalSearches,
+              cacheHitRate: 0, // Optionally calculate cache hit rate
+              averageResponseTime: getAnalyticsData().averageResponseTime,
             },
           }));
 
-          // Reset retry count on success
           setRetryCount(0);
         } else {
           setState(prev => ({
@@ -683,14 +457,20 @@ export const useRegionSearch = (
           }));
         }
       } catch (error) {
-        // Handle different error types
         let searchError: SearchError;
+
+        if (
+          typeof window !== 'undefined' &&
+          window.console &&
+          process.env.NODE_ENV !== 'production'
+        ) {
+          console.error('useRegionSearch error:', error);
+        }
 
         if (error instanceof Error) {
           if (error.name === 'AbortError') {
-            return; // Request was cancelled, don't update state
+            return;
           }
-
           if (
             error.message.includes('timeout') ||
             error.message.includes('ECONNRESET')
@@ -725,12 +505,18 @@ export const useRegionSearch = (
         }
 
         // Update analytics with error
-        updateAnalytics(searchError);
+        trackError(searchError.type);
 
         setState(prev => ({
           ...prev,
           loading: createLoadingState(),
-          error: searchError,
+          error: {
+            ...searchError,
+            diagnostics:
+              process.env.NODE_ENV !== 'production'
+                ? { raw: error, time: new Date().toISOString() }
+                : undefined,
+          },
         }));
 
         // Auto-retry for retryable errors
@@ -739,17 +525,46 @@ export const useRegionSearch = (
           searchError.retryable &&
           retryCountRef.current < searchConfig.maxRetries
         ) {
-          const delay = searchConfig.retryDelay * Math.pow(2, retryCountRef.current); // Exponential backoff
+          const delay = searchConfig.retryDelay * Math.pow(2, retryCountRef.current);
           setTimeout(() => {
             setRetryCount(prev => prev + 1);
             void performSearch(query, { ...options, isRetry: true });
           }, delay);
         }
       } finally {
-        IN_FLIGHT_REQUESTS.delete(cacheKey);
+        inFlightSearchingCountRef.current = Math.max(
+          0,
+          inFlightSearchingCountRef.current - 1
+        );
+        // Only update state if this is the latest request
+        if (currentRequestIdRef.current === requestId) {
+          if (!isBackground && (!options?.page || options.page === 1)) {
+            setState(prev => ({
+              ...prev,
+              loading: {
+                ...prev.loading,
+                searching: inFlightSearchingCountRef.current > 0,
+              },
+            }));
+          } else {
+            setState(prev => ({
+              ...prev,
+              loading: createLoadingState(),
+            }));
+          }
+        }
       }
     },
-    [searchConfig]
+    [
+      searchConfig,
+      getCache,
+      setCache,
+      isRateLimited,
+      addRequest,
+      trackSearch,
+      trackError,
+      getAnalyticsData,
+    ]
   );
 
   // Debounced search function
@@ -758,7 +573,7 @@ export const useRegionSearch = (
     return (query: string, options?: SearchOptions & { isRetry?: boolean }) => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        void performSearch(query, options);
+        void performSearch(query, { ...options, requestId: uuidv4() });
       }, searchConfig.debounceDelay);
     };
   }, [performSearch, searchConfig.debounceDelay]);
@@ -782,7 +597,6 @@ export const useRegionSearch = (
   const goToPage = useCallback(
     (page: number) => {
       if (currentQuery) {
-        // Use the search function instead of performSearch directly
         void search(currentQuery, {
           page,
           pageSize: pageSizeRef.current,
@@ -807,16 +621,12 @@ export const useRegionSearch = (
   );
 
   const reset = useCallback(() => {
-    // Cancel any ongoing requests
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
-
-    // Clear debounce timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
-
     setState({
       data: {
         suggestions: [],
@@ -837,13 +647,15 @@ export const useRegionSearch = (
         averageResponseTime: 0,
       },
     });
-
     setCurrentQuery('');
     setRetryCount(0);
-  }, [initialPageSize]);
+    clearCacheStore();
+    clearRateLimit();
+    clearAnalytics();
+  }, [initialPageSize, clearCacheStore, clearRateLimit, clearAnalytics]);
 
   const clearCache = useCallback(() => {
-    SEARCH_CACHE.clear();
+    clearCacheStore();
     setState(prev => ({
       ...prev,
       metrics: {
@@ -851,7 +663,7 @@ export const useRegionSearch = (
         cacheHitRate: 0,
       },
     }));
-  }, []);
+  }, [clearCacheStore]);
 
   const retryLastSearch = useCallback(async () => {
     if (currentQuery && state.error?.retryable) {
@@ -864,19 +676,14 @@ export const useRegionSearch = (
   }, []);
 
   const getAnalytics = useCallback(() => {
-    const avgResponseTime =
-      ANALYTICS_TRACKER.responseTimesHistory.length > 0
-        ? ANALYTICS_TRACKER.responseTimesHistory.reduce((a, b) => a + b, 0) /
-          ANALYTICS_TRACKER.responseTimesHistory.length
-        : 0;
-
+    const analytics = getAnalyticsData();
     return {
-      totalSearches: ANALYTICS_TRACKER.totalSearches,
-      errorsByType: { ...ANALYTICS_TRACKER.errorsByType },
-      averageResponseTime: avgResponseTime,
-      peakUsageHours: Array.from(ANALYTICS_TRACKER.peakUsageHours),
+      totalSearches: analytics.totalSearches,
+      errorsByType: { ...analytics.errorsByType },
+      averageResponseTime: analytics.averageResponseTime,
+      peakUsageHours: Array.from(analytics.peakUsageHours),
     };
-  }, []);
+  }, [getAnalyticsData]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -904,34 +711,4 @@ export const useRegionSearch = (
     getSuggestions,
     getAnalytics,
   };
-};
-
-// Export utility functions for testing and external use
-export const regionSearchUtils = {
-  validateSearchInput,
-  sanitizeInput,
-  createCacheKey,
-  clearAllCache: () => SEARCH_CACHE.clear(),
-  getCacheStats: () => ({
-    size: SEARCH_CACHE.size,
-    maxSize: DEFAULT_CONFIG.maxCacheSize,
-  }),
-  clearSuggestions: () => SEARCH_SUGGESTIONS.clear(),
-  getSuggestionsCount: () => SEARCH_SUGGESTIONS.size,
-  getGlobalAnalytics: () => ({
-    totalSearches: ANALYTICS_TRACKER.totalSearches,
-    errorsByType: { ...ANALYTICS_TRACKER.errorsByType },
-    averageResponseTime:
-      ANALYTICS_TRACKER.responseTimesHistory.length > 0
-        ? ANALYTICS_TRACKER.responseTimesHistory.reduce((a, b) => a + b, 0) /
-          ANALYTICS_TRACKER.responseTimesHistory.length
-        : 0,
-    peakUsageHours: Array.from(ANALYTICS_TRACKER.peakUsageHours),
-  }),
-  resetAnalytics: () => {
-    ANALYTICS_TRACKER.totalSearches = 0;
-    ANALYTICS_TRACKER.errorsByType = {} as Record<ErrorType, number>;
-    ANALYTICS_TRACKER.responseTimesHistory = [];
-    ANALYTICS_TRACKER.peakUsageHours.fill(0);
-  },
 };
