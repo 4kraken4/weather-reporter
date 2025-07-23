@@ -52,13 +52,15 @@ export const SearchRetry = memo(
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   label={loading.retrying ? 'Retrying...' : 'Try Again'}
+                  loading={loading.retrying}
+                  loadingIcon='pi pi-spin pi-spinner'
                   size='small'
                   severity='warning'
                   outlined
                   className='retry-button'
                   onClick={handleRetrySearch}
                   disabled={loading.retrying}
-                  icon={loading.retrying ? 'pi pi-spin pi-spinner' : 'pi pi-refresh'}
+                  icon='pi pi-refresh'
                   aria-label='Retry search'
                 />
               </motion.div>
